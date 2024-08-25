@@ -1,0 +1,180 @@
+﻿@model MoviesViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section Styles
+{
+    <!-- sweetalert2樣式 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+    <style>
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+
+        
+    </style>
+}
+
+<h2 class="form-header text-center">修改電影</h2>
+<hr />
+<form asp-action="Edit" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="MovieId" />
+
+    <div class="row">
+        <!-- 左邊部分：輸入字段 -->
+        <div class="col-4">
+            <div class="mb-3">
+                <label asp-for="MovieName" class="form-label">電影名稱</label>
+                <input asp-for="MovieName" class="form-control" placeholder="輸入電影名稱" required />
+                <span asp-validation-for="MovieName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieEnglishName" class="form-label">電影英文名稱</label>
+                <input asp-for="MovieEnglishName" class="form-control" placeholder="輸入電影英文名稱" required />
+                <span asp-validation-for="MovieEnglishName" class="text-danger"></span>
+            </div>
+           
+            <div class="mb-3">
+                <label asp-for="ReleaseDate" class="form-label">發行日期</label>
+                <input asp-for="ReleaseDate" class="form-control" type="date" required />
+                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Runtime" class="form-label">片長</label>
+                <input asp-for="Runtime" class="form-control" placeholder="輸入片長" required />
+                <span asp-validation-for="Runtime" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Level" class="form-label">分級</label>
+                <select asp-for="Level" class="form-control" asp-items="ViewBag.Level" required></select>
+                <span asp-validation-for="Level" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Language" class="form-label">語言</label>
+                <select asp-for="Language" class="form-control" asp-items="ViewBag.Language" required></select>
+                <span asp-validation-for="Language" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DirectorName" class="form-label">導演名稱</label>
+                <input asp-for="DirectorName" class="form-control" placeholder="輸入導演名稱" required />
+                <span asp-validation-for="DirectorName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieState" class="form-label">狀態</label>
+                <select asp-for="MovieState" class="form-control" asp-items="ViewBag.MovieState" required></select>
+                <span asp-validation-for="MovieState" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieDescription" class="form-label">描述</label>
+                <textarea asp-for="MovieDescription" class="form-control" rows="7" placeholder="輸入描述" required></textarea>
+                <span asp-validation-for="MovieDescription" class="text-danger"></span>
+            </div>  
+        </div>
+
+        <!-- 右邊部分：圖片和影片上傳 -->
+        <div class="col-8 text-center">
+            <div class="card mb-3 text-center mt-4">
+                <label class="form-label fs-3 mt-3">電影海報</label>
+                <hr class="m-0 mb-3"/>
+                <partial name="_MoviesShowImagePartialEdit" />
+                <div class="p-2">
+                    <input asp-for="MovieImage" type="file" accept="image/*" class="form-control my-3" />
+                </div>
+            </div>     
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-3">
+                <label asp-for="Movievideo" class="form-label fs-3">預告片網址</label>
+                <input type="text" asp-for="Movievideo" value="@Model.Movievideo" class="form-control" />
+                <div class="ratio ratio-16x9 mt-3">
+                    <iframe id="movieVideoPreview" src="@Model.Movievideo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <span asp-validation-for="Movievideo" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交按鈕 -->
+    <div class="text-center my-4">
+        <button type="submit" class="btn btn-primary btn-submit">提交</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- sweetalert2套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+    <script>
+        function Confirm(element) {
+            // 使用 SweetAlert2 來顯示確認對話框
+            Swal.fire({
+                title: "是否確認要修改?",
+                icon: "warning",
+                showDenyButton: true, // 顯示「否」按鈕
+                confirmButtonText: "是", // 「是」按鈕的文字
+                denyButtonText: "否", // 「否」按鈕的文字
+                confirmButtonColor: '#3085d6', // 設置「是」按鈕為藍色
+                denyButtonColor: '#6c757d', // 設置「否」按鈕為灰色
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $('form').submit();
+                } else if (result.isDenied) {
+                    // 如果用戶選擇了「否」，什麼都不做
+                }
+            });
+            return false; // 防止 a 標籤的預設行為
+        }
+
+        $(document).ready(function () {
+            $('#MovieImage').on("change", function () {
+                setTimeout(function () {
+                    if ($('#MovieImage').val() == "") {
+                        $('#MovieImage').prev().attr("src", "/images/No_Image.jpg");
+                    }
+                }, 100);
+                var allowType = "image.*";
+                var file = this.files[0];
+                if (file != undefined) {
+                    if (file.type.match(allowType)) {
+                        var reader = new FileReader();
+                        reader.onload = function (e) {
+                            $('#MovieImage').prev().attr("src", e.target.result);
+                            $('#MovieImage').prev().attr("title", file.name);
+                        }
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert("不支援的檔案上傳類型");
+                        $('#MovieImage').val('');
+                    }
+                }
+            });
+
+            // 新增的影片預覽功能
+            $('#Movievideo').on("input", function () {
+                var videoUrl = $(this).val();
+                var embedUrl = convertToEmbedUrl(videoUrl);
+                $('#movieVideoPreview').attr('src', embedUrl);
+            });
+
+            // 新增：影片網址轉換函數
+            function convertToEmbedUrl(url) {
+                var regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+                var match = url.match(regex);
+                if (match && match[1]) {
+                    return "https://www.youtube.com/embed/" + match[1];
+                }
+                return "";
+            }
+        });
+    </script>
+}

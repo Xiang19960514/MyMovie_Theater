@@ -1,0 +1,157 @@
+﻿@model Movie_Theater.Models.Theaters
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="position-relative mb-3">
+    <div class="position-absolute" style="left: 0; top: 50%; transform: translateY(-50%); display: flex; align-items: center;">
+        <select id="demoItem" class="form-select me-2" style="width: auto;">
+            <option value="0" selected>選擇選項</option>
+            <option value="1">影城1</option>
+            <option value="2">影城2</option>
+        </select>
+        <span class="mx-1">Demo用測試資料帶入</span>
+    </div>
+    <h2 class="text-center m-0">新增影城</h2>
+</div>
+<hr />
+<form asp-action="Create" id="theaterForm" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row">
+        <!-- 左邊部分：輸入字段 -->
+        <div class="col-4">
+            <div class="mb-3">
+                <label asp-for="TheaterName" class="form-label">戲院名稱</label>
+                <input asp-for="TheaterName" class="form-control" placeholder="輸入戲院名稱" required />
+                <span asp-validation-for="TheaterName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterPhone" class="form-label">聯絡電話</label>
+                <input asp-for="TheaterPhone" class="form-control" placeholder="輸入聯絡電話" required />
+                <span asp-validation-for="TheaterPhone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterEmail" class="form-label">電子郵件</label>
+                <input asp-for="TheaterEmail" class="form-control" placeholder="輸入電子郵件" required />
+                <span asp-validation-for="TheaterEmail" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterLocation" class="form-label">地點</label>
+                <input asp-for="TheaterLocation" class="form-control" placeholder="輸入地點" required />
+                <span asp-validation-for="TheaterLocation" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterDescription" class="form-label">描述</label>
+                <textarea asp-for="TheaterDescription" class="form-control" rows="4" placeholder="輸入描述"></textarea>
+                <span asp-validation-for="TheaterDescription" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterStartTime" class="form-label">開放時間</label>
+                <input asp-for="TheaterStartTime" type="time" class="form-control" value="00:00:00" required />
+                <span asp-validation-for="TheaterStartTime" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterEndTime" class="form-label">結束時間</label>
+                <input asp-for="TheaterEndTime" type="time" class="form-control" value="00:00:00" required />
+                <span asp-validation-for="TheaterEndTime" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- 右邊部分：圖片上傳 -->
+        <div class="col-8 text-center">
+            <div>
+                <label asp-for="TheaterImage" class="form-label fs-3">上傳圖片</label>
+            </div>
+            <div class="mb-3">
+                <img src="~/images/No_Image.jpg" title="尚無圖案" class="img-fluid" style="width: 800px; height: 500px; object-fit: contain;" />
+                <input asp-for="TheaterImage" type="file" accept="image/*" class="form-control my-3" />
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交按鈕 -->
+    <div class="text-center my-4">
+        <button type="submit" class="btn btn-primary btn-submit">提交</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+	<script src="~/js/form_validation.js"></script>
+    <script>
+        
+        function demoData(){
+            $('#demoItem').on("change", function () {
+                const selectItem = $('#demoItem').val();
+                if (selectItem == 0) {
+                    $('#theaterForm').trigger('reset');
+                }
+                if (selectItem == 1) {
+                    $('#TheaterName').val('高雄影城廣場');
+                    $('#TheaterPhone').val('0987654329');
+                    $('#TheaterEmail').val('kaohsiungplazacinema@example.com');
+                    $('#TheaterLocation').val('高雄市苓雅區五福一路300號');
+                    $('#TheaterDescription').val('高雄影城廣場是一座現代化的影城，擁有多個豪華影廳，並提供頂級的聲光效果和舒適的座椅配置，是高雄地區觀影的首選地點。');
+                    $('#TheaterStartTime').val('09:00');
+                    $('#TheaterEndTime').val('23:00');
+                }
+                if (selectItem == 2) {
+                    $('#TheaterName').val('花蓮星辰影城');
+                    $('#TheaterPhone').val('0987654328');
+                    $('#TheaterEmail').val('hualienstarcinema@example.com');
+                    $('#TheaterLocation').val('花蓮市中正路480號');
+                    $('#TheaterDescription').val('花蓮星辰影城位於花蓮市中心，提供最新的電影資訊和舒適的觀影體驗，是當地居民和遊客的理想選擇。');
+                    $('#TheaterStartTime').val('10:00');
+                    $('#TheaterEndTime').val('22:00');
+                }
+            })
+            
+        }
+
+        $(document).ready(function () {
+
+            formValidation();
+            demoData(); // Demo用資料帶入
+            let imageTemp;
+            $('#TheaterImage').on("change", function () {
+                // 等待0.1秒
+                setTimeout(function () {
+                    console.log($('#TheaterImage').val());
+                    // 判斷是否有圖片
+                    if ($('#TheaterImage').val() == "") {
+                        // 更換成沒照片的圖
+                        $('#TheaterImage').prev().attr("src", "/images/No_Image.jpg");
+                    }
+                }, 100);
+                // 允許的副檔名
+                var allowType = "image.*";
+                // 上傳的第一個檔案
+                var file = this.files[0];
+                if (file != undefined) {
+                    // 抓取檔案的型態是否為allowType的格式
+                    if (file.type.match(allowType)) {
+                        // 讀取圖片
+                        var reader = new FileReader();
+                        // 檔案讀取完成的事件
+                        reader.onload = function (e) {
+                            // 選到#TheaterImage的上一個元素修改src屬性
+                            $('#TheaterImage').prev().attr("src", e.target.result);
+                            // 選到#TheaterImage的上一個元素修改title屬性
+                            $('#TheaterImage').prev().attr("title", file.name);
+                            imageTemp = e.target.result;
+                        }
+                        // 用圖片的URL讀取圖片
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert("不支援的檔案上傳類型");
+                        // 清空內容
+                        $('#TheaterImage').val('');
+                    }
+                }
+
+            });
+        });
+    </script>
+}

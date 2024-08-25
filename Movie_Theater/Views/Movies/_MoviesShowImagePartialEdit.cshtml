@@ -1,0 +1,23 @@
+﻿@model MoviesViewModel
+
+@{
+    var movieImage = Model.MovieImage;
+    var containsHttp = movieImage != null && movieImage.Contains("http", StringComparison.OrdinalIgnoreCase);
+}
+
+@if (Model.MovieImage == null)
+{
+    <img src="~/images/No_Image.jpg" title="尚無圖案" style="width:500px;height:665px;margin-left:auto; margin-right:auto;" class="my-3" />
+}
+else
+{
+  
+    if (containsHttp)
+    {
+        <img src="@Model.MovieImage" title="@Model.MovieName" style="width:500px;height:665px;margin-left:auto; margin-right:auto;" class="my-2" />
+    }
+    else
+    {
+        <img src="~/images/@Model.MovieImage" title="@Model.MovieName" style="width:500px;height:665px;margin-left:auto; margin-right:auto;" class="my-3" />
+    }
+}

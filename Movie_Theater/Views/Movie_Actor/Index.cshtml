@@ -1,0 +1,252 @@
+﻿@model MovieActorViewModel
+
+
+@{
+    ViewData["Title"] = "Index";
+    // var name = Model.Select(s => s.MovieName).Select(m => m).FirstOrDefault();
+    // 這個可以顯示電影名稱(只能用viewmodel裡面的欄位取)還有控制器要join到Movies的name 效果等同底下的<h2>@ViewBag.name</h2> 
+}
+@section Styles
+{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+    <style>
+        /* 卡片樣式 */
+        .card.actor-box {
+            border-radius: 10px;
+            width: 400px;
+            border: 1px solid #ddd;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 15px;
+            font-size: 1.25rem;
+            border-bottom: 1px solid #ccc;
+            text-align: center;
+        }
+
+            .card-header .text-truncate {
+                max-width: 100%;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .btn-block {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+
+        /* 列表項目樣式 */
+        .list-item {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+        }
+
+            .list-item .actor-name {
+                flex-grow: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-right: 10px;
+                font-size: 14px;
+            }
+
+            .list-item .main-level {
+                margin-right: 10px;
+                flex-shrink: 0;
+                font-size: 14px
+            }
+
+            .list-item .delete-button {
+                flex-shrink: 0;
+            }
+
+        .button-group select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ced4da;
+            font-size: 14px;
+            background-color: #fff;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .btn-secondary {
+            border-radius: 5px;
+        }
+    </style>
+}
+
+<div class="card actor-box shadow-sm">
+    <div class="card-header bg-light text-dark text-center">
+        <h5 class="mb-0 text-truncate">@ViewBag.name</h5>
+    </div>
+    <div class="card-body">
+        <div class="button-group">
+            <select asp-for="Actor_Id" asp-items="@ViewBag.actor" class="form-control"></select>
+            <select class="form-select mt-3" id="mainlevel">
+                <option value="0">主演</option>
+                <option value="1">配角</option>
+                <option value="2">客串</option>
+            </select>
+            <button id="Create" class="btn btn-success mt-3 btn-block">
+                <i class="bi bi-plus-square"></i> 新增演員
+            </button>
+        </div>
+        <div id="dynamic-content" class="mt-4">
+            <ul class="list-group">
+                <!-- 動態顯示 -->
+            </ul>
+        </div>
+    </div>
+    <div class="text-end card-footer">
+        <a asp-controller="Movies" asp-action="Details" asp-route-id="@ViewBag.movieid" class="btn btn-secondary">返回</a>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            Add();
+            $('#Create').on('click', function () {
+                let movieId = @Html.Raw(ViewBag.movieid);
+                let actorId = $('#Actor_Id').val();
+                let mainlevel = $('#mainlevel').val();
+                let data = {
+                    "Movie_Id": movieId,
+                    "Actor_Id": actorId,
+                    "MainLevel": mainlevel
+                };
+                $.ajax({
+                    type: "POST",
+                    url: `/Movie_Actor/CreateActor`,
+                    contentType: "application/json",
+                    data: JSON.stringify(data)
+                }).done(response => {
+                    if (response == "新增成功") {
+                        Add();
+                        Swal.fire({
+                            title: "新增成功",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else if (response == "該演員已存在") {
+                        Swal.fire({
+                            title: "新增失敗",
+                            text: "該演員已存在，無法重複新增",
+                            icon: "error",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            title: "新增失敗",
+                            text: "發生未知錯誤，請稍後再試。",
+                            icon: "error",
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+                    }
+                }).fail(err => {
+                    alert(`呼叫失敗，錯誤訊息:${err}`);
+                });
+            });
+        });
+
+        function Add() {
+            $.ajax({
+                type: "GET",
+                url: `/Movie_Actor/Create?id=@ViewBag.movieid`,
+            }).done(data => {
+                $('#dynamic-content ul').empty();
+                data.forEach(act => {
+                    let mainLevelText = '';
+                    switch (act.mainLevel) {
+                        case 0:
+                            mainLevelText = "主演";
+                            break;
+                        case 1:
+                            mainLevelText = "配角";
+                            break;
+                        case 2:
+                            mainLevelText = "客串";
+                            break;
+                        default:
+                            mainLevelText = "臨演";
+                    }
+                    let listItem = `
+                         <li class="list-item" id="${act.actor_Id}">
+                            <span class="actor-name">${act.actorName}</span>
+                            <span class="main-level">${mainLevelText}</span>
+                            <button class="delete-button btn btn-danger" onclick="deleteClass(${act.actor_Id})">
+                                <i class="bi bi-trash-fill"></i>
+                            </button>
+                        </li>`;
+                    $('#dynamic-content ul').append(listItem);
+                });
+            }).fail(err => {
+                alert(`呼叫失敗，錯誤訊息:${err}`);
+            })
+        }
+
+        function deleteClass(id) {
+            Swal.fire({
+                title: '確定要刪除這位演員嗎？',
+                text: '此操作無法復原！',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: '確定刪除',
+                cancelButtonText: '取消'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    let movieId = @Html.Raw(ViewBag.MovieId);
+                    let data = {
+                        "Movie_Id": movieId,
+                        "Actor_Id": id
+                    };
+                    $.ajax({
+                        type: "POST",
+                        url: '/Movie_Actor/Delete',
+                        data: JSON.stringify(data),
+                        contentType: 'application/json'
+                    }).done(response => {
+                        Add();
+                        Swal.fire(
+                            '已刪除!',
+                            '該演員已成功刪除',
+                            'success'
+                        );
+                    }).fail(err => {
+                        alert(`呼叫失敗，錯誤訊息:${err}`);
+                    })
+                }
+            })
+        }
+    </script>
+}

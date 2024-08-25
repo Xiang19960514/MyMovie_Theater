@@ -1,0 +1,289 @@
+﻿@model Auditoriums_ViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+          integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        /* td {
+            border: 1px solid black;
+        } */
+
+        .seat-Cancel {
+            /* 取消的座位的顏色 */
+            color: gainsboro !important;
+        }
+
+        .seat-Wheelchair {
+            /* 友善座位的顏色 */
+            color: darkgreen !important;
+        }
+
+        a{
+            cursor: pointer;
+        }
+
+        .custom-h2 {
+            width: 700px; /* 設置寬度 */
+            margin: 0 auto; /* 使標籤水平置中 */
+            /* background-color: #3498db; /* 設置背景色 */ */
+            /* color: white; /* 設置文字顏色 */ */ padding: 10px 0; /* 垂直方向的內邊距 */
+            border-radius: 50px / 25px; /* 讓元素呈現橢圓形，兩邊為半圓 */
+            text-align: center; /* 使文字置中 */
+        }
+    </style>
+}
+
+<h1>修改影廳</h1>
+
+<hr />
+
+<form asp-action="Edit" id="seatForm">
+    <div class="row">
+        <div class="col-md-6">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Theater_Id" class="control-label"></label>
+                <select asp-for="Theater_Id" class="form-control" asp-items="ViewBag.Theater_Id"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="AuditoriumName" class="control-label"></label>
+                <input asp-for="AuditoriumName" class="form-control" />
+                <span asp-validation-for="AuditoriumName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="form-group">
+                    <label asp-for="AuditoriumType" class="control-label"></label>
+                    <select asp-for="AuditoriumType" class="form-select">
+                        <option value="數位">數位</option>
+                        <option value="3D">3D</option>
+                        <option value="IMAX">IMAX</option>
+                    </select>
+                    <span asp-validation-for="AuditoriumType" class="text-danger"></span>
+                </div>
+            </div>
+            <!-- 設定座位 start -->
+            <div class="row my-3">
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="row" placeholder="列數" value="@ViewBag.Row">
+                        <label for="row">列數</label>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="number" placeholder="座位數" value="@ViewBag.Number">
+                        <label for="number">座位數</label>
+                    </div>
+                </div>
+            </div>
+            <!-- 設定座位 end -->
+        </div>
+
+    </div>
+    <div class="row">
+        <!-- 設定總座位數 start -->
+        <div class="container">
+            <!-- 設定座位類型 start -->
+            <div class="row mb-3">
+                <div class="col-12 d-flex justify-content-center">
+                    <div class="form-check mx-3">
+                        <input class="form-check-input" type="radio" name="seatType" id="seatType1" value="停用" checked>
+                        <label class="form-check-label" for="seatType1">
+                            <i class="fa-solid fa-couch fa-2x"></i> 取消座位
+                        </label>
+                    </div>
+                    <div class="form-check mx-3">
+                        <input class="form-check-input" type="radio" name="seatType" id="seatType2" value="友善座位">
+                        <label class="form-check-label" for="seatType2">
+                            <i class="fa-solid fa-wheelchair fa-2x"></i> 友善座位
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <!-- 設定座位類型 end -->
+            <!-- 顯示座位 start -->
+            <div class="row">
+                <div class="col-12 d-flex justify-content-center">
+                    <div id="box">
+                        <table id="table"></table>
+                    </div>
+                </div>
+            </div>
+            <!-- 顯示座位 end -->
+            <h2 class="text-center rounded-pill custom-h2 bg-secondary mt-5">螢幕</h2>
+        </div>
+        <!-- 設定總座位數 end -->
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-12 d-flex flex-row-reverse bd-highlight my-5">
+                <div>
+                    <button id="btn" type="submit" class="btn btn-primary">確認送出</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 隱藏輸入字段，用於提交座位數據 -->
+    <input asp-for="TotalSeats" type="hidden" />
+    <input asp-for="SeatsJson" type="hidden" />
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+
+        function createTable() {
+            // 抓取table
+            let table = document.querySelector('#table');
+            table.innerHTML = '';
+            let row = $('#row').val();
+            let number = $('#number').val();
+
+            if (row != "" && number != "") {
+                $('#btn').show();
+                for (let i = 1; i <= row; i++) {  // 列
+                    // 產生tr
+                    let tr = document.createElement("tr");
+                    tr.style.lineHeight = '25px';
+                    for (let j = 1; j <= number; j++) {  // 座位數
+                        // 產生td
+                        let td = document.createElement("td");
+                        // 在td加入圖示
+                        td.innerHTML = '<a class="seat m-1"><i class="fa-solid fa-couch fa-2x"></i></a>';
+                        // 加入id
+                        td.id = `${i}-${j}`
+                        // 在tr裡面加入td
+                        tr.appendChild(td);
+                    }
+                    // 在table加入tr
+                    table.appendChild(tr);
+                }
+                // 座位點擊事件綁定
+                $('.seat').on('click', function (e) {
+                    let seatType = $('input[name="seatType"]:checked').val();
+                    let icon = $(this).find('i');
+                    // 取消座位(選取取消且不是友善座位)
+                    if (seatType == "停用" && !icon.hasClass('fa-wheelchair')) {
+                        icon.toggleClass('seat-Cancel');
+                    }
+                    // 友善座位(選取友善且不是取消座位)
+                    else if (seatType == "友善座位" && !icon.hasClass('seat-Cancel')) {
+                        
+                        if (icon.hasClass('fa-couch') && !icon.hasClass('seat-Cancel')) {
+                            // 目前是正常座位且未被取消
+                            icon.removeClass('fa-couch');  // 刪除正常座位
+                            icon.addClass('fa-wheelchair'); // 加入友善座位
+                            icon.addClass('seat-Wheelchair'); // 加入顏色
+                        } else {  // 目前是友善座位
+                            icon.removeClass('fa-wheelchair'); // 刪除友善座位
+                            icon.removeClass('seat-Wheelchair'); // 刪除友善顏色
+                            icon.removeClass('seat-Cancel')  // 刪除停用顏色
+                            icon.addClass('fa-couch'); // 加入正常座位
+                        }
+                    }
+                });
+            }
+            else {
+                table.innerHTML = '';
+                $('#btn').hide();
+            }
+        }
+
+
+        $('#btn').hide();
+        $('#row').on('keyup', function () {
+            createTable();
+
+        });
+        $('#number').on('keyup', function () {
+            createTable();
+        });
+
+        // 在表單提交前收集座位數據
+        $('#seatForm').on('submit', function (e) {
+            // 阻止表單的默認提交行為
+            e.preventDefault();
+            // 構建座位數據
+            let seats = [];
+            let seatCancelTotal = 0;
+            $('#table td').each(function () {
+                let seat = {};
+                let seatIcon = $(this).find('i');
+                // 把id以-拆分成列跟欄
+                let position = $(this).attr('id').split('-');
+                seat.SeatRow = String.fromCharCode(Number(position[0]) + 64);
+                seat.SeatNumber = Number(position[1]);
+                seat.SeatStatus = "啟用"; // 這是示例，可以根據需求改變
+                seat.SeatType = "一般座位";
+
+                if (seatIcon.hasClass('seat-Cancel')) {
+                    seat.SeatStatus = "停用";
+                    seatCancelTotal++;
+                } else if (seatIcon.hasClass('fa-wheelchair')) {
+                    seat.SeatType = "友善座位";
+                }
+
+                seats.push(seat);
+            });
+
+            $('#TotalSeats').val($('#row').val() * $('#number').val());
+            console.log('座位數: ' + $('#TotalSeats').val());
+
+            // 將座位數據轉換為 JSON 字符串
+            let seatsJson = JSON.stringify(seats);
+
+            $('#SeatsJson').val(seatsJson);
+            console.log('座位: ' + $('#SeatsJson').val());
+
+            // 手動觸發表單提交
+            this.submit();
+        });
+
+        $(document).ready(function () {
+            createTable();
+            let id = @ViewBag.ID;
+            // 使用ajax呼叫後端取得資料
+            $.ajax({
+                // 動詞
+                type: "GET",
+                // URI
+                url: `/Auditoriums/AuditoriumsJson/${id}`,
+            }).done(data => {  // 收到資料
+                data.forEach((seat, index) => {
+                    console.log(index);
+                    let seatID = `#${seat.seatRow}-${seat.seatNumber}`;
+                    let seatIcon = $(seatID).find('i');
+                    if (seat.seatType == "友善座位") {
+                        console.log(seatID, seat.seatType);
+                        seatIcon.removeClass('fa-couch');  // 刪除正常座位
+                        seatIcon.addClass('fa-wheelchair'); // 加入友善座位
+                        seatIcon.addClass('seat-Wheelchair'); // 加入顏色
+                    }
+                    else if (seat.seatStatus == "停用") {
+                        console.log(seatID, seat.seatStatus);
+                        seatIcon.toggleClass('seat-Cancel');
+                    }
+                });
+            }).fail(error => {  // 呼叫失敗
+                // 顯示錯誤訊息
+                alert(err.statusText);
+            });
+
+        });
+
+        
+    </script>
+
+}

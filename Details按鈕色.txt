@@ -1,0 +1,25 @@
+.btn-lg {
+    display: inline-block;
+    border-radius: 5px;
+    padding: 10px 30px;
+    font-size: 1.2em;
+    background: linear-gradient(45deg, #3a5f72, #4ca1af); /* 漸變背景：從淺灰藍到海藍 */
+    color: #fff;
+    margin-bottom: 10px;
+    text-align: center;
+    text-decoration: none;
+    border: none;
+    transition: transform 0.2s ease; /* 增加按鈕輕微的變形效果 */
+}
+
+    .btn-lg:hover {
+        transform: translateY(-3px); /* 懸停時讓按鈕稍微浮起 */
+    }
+
+ <!-- 動作按鈕 -->
+ <div class="text-center mt-4">
+     <a asp-action="Index" class="btn btn-lg mx-2">返回列表</a>
+     <a asp-action="Edit" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">編輯</a>
+     <a asp-controller="Movie_Actor" asp-action="Index" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">演員</a>
+     <a asp-controller="Movie_Class" asp-action="Index" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">類型</a>
+ </div>

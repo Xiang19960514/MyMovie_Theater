@@ -1,0 +1,242 @@
+
+/* 重置 margin 和 padding，確保所有元素的邊距和填充統一處理 */
+::after, ::before {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+}
+
+/* 去除所有超連結的下劃線 */
+a {
+    text-decoration: none;
+}
+
+/* 去除所有列表項目的點 */
+li {
+    list-style: none;
+}
+
+/* 設置頁面佈局為 flex，允許側邊欄和主內容並排排列 */
+.wrapper {
+    display: flex;
+}
+
+/* 上導覽列 */
+.navbar{
+    background-color:aliceblue;
+}
+/* 右邊主內容的樣式，填滿高度並提供過渡效果 */
+.main {
+    min-height: 100vh;
+    /* 使主內容區域填滿整個視窗高度 */
+    width: 100%;
+    /* 使主內容區域寬度為 100% */
+    overflow: hidden;
+    /* 隱藏主內容區域的滾動條 */
+    transition: all 0.35s ease-in-out;
+
+    /* 設置背景圖片 */
+    background-image: url('../images/023.png');
+
+    /* 讓背景圖片覆蓋整個頁面 */
+    background-size: cover;
+    /* 固定背景圖片，使其在滾動時不會移動 */
+    background-attachment: fixed;
+    /* 將背景圖片居中 */
+    background-position: center;
+    /* 重複背景圖片以覆蓋整個頁面（如果背景圖片的尺寸不夠大） */
+    background-repeat: no-repeat;
+
+}
+
+/* 側邊欄的基本樣式，寬度為 70px 並進行過渡效果 */
+#sidebar {
+    width: 70px;
+    /* 側邊欄初始寬度 */
+    min-width: 70px;
+    /* 側邊欄最小寬度 */
+    z-index: 1000;
+    /* 保證側邊欄的層級高於其他元素 */
+    transition: all .25s ease-in-out;
+    /* 過渡效果 */
+    background-color: #0e2238;
+    /* 側邊欄背景色 */
+    display: flex;
+    /* 使用 Flex 布局 */
+    flex-direction: column;
+    /* 元素垂直排列 */
+}
+
+/* 側邊欄展開時的樣式，寬度增加到 260px */
+#sidebar.expand {
+    width: 260px;
+    /* 展開時的寬度 */
+    min-width: 260px;
+    /* 展開時的最小寬度 */
+}
+
+/* 側邊欄切換按鈕的樣式 */
+.toggle-btn {
+    background-color: transparent;
+    /* 背景色為透明 */
+    cursor: pointer;
+    /* 滑鼠懸停時顯示為指針 */
+    border: 0;
+    /* 移除邊框 */
+    padding: 1rem 1.5rem;
+    /* 設置內間距 */
+}
+
+/* 側邊欄切換按鈕圖標的樣式 */
+.toggle-btn i {
+    font-size: 1.5rem;
+    /* 圖標字體大小 */
+    color: #FFF;
+    /* 圖標顏色 */
+}
+
+/* 側邊欄標誌區域的樣式 */
+.sidebar-logo {
+    margin: auto 0;
+    /* 垂直居中 */
+}
+
+/* 側邊欄標誌的連結樣式 */
+.sidebar-logo a {
+    color: #FFF;
+    /* 標誌文字顏色 */
+    font-size: 1.15rem;
+    /* 標誌文字大小 */
+    font-weight: 600;
+    /* 標誌文字粗細 */
+}
+
+/* 側邊欄未展開時，隱藏標誌和連結文字 */
+#sidebar:not(.expand) .sidebar-logo,
+#sidebar:not(.expand) a.sidebar-link span {
+    display: none;
+    /* 隱藏標誌和文字 */
+}
+
+/* 側邊欄導航區域的樣式 */
+.sidebar-nav {
+    padding: 2rem 0;
+    /* 對側邊欄導航區域進行內間距設置 */
+    flex: 1 1 auto;
+    /* 使側邊欄導航區域填滿剩餘空間 */
+}
+
+/* 側邊欄連結的樣式 */
+a.sidebar-link {
+    padding: .625rem 1.625rem;
+    /* 設置內間距 */
+    color: #FFF;
+    /* 連結文字顏色 */
+    display: block;
+    /* 將連結設置為區塊級元素 */
+    font-size: 0.9rem;
+    /* 連結文字大小 */
+    white-space: nowrap;
+    /* 防止文字換行 */
+    border-left: 3px solid transparent;
+    /* 左邊的邊框，默認為透明 */
+}
+
+/* 側邊欄連結的圖標樣式 */
+.sidebar-link i {
+    font-size: 1.1rem;
+    /* 圖標字體大小 */
+    margin-right: .75rem;
+    /* 圖標與文字之間的間距 */
+}
+
+/* 側邊欄連結 hover 時的樣式 */
+a.sidebar-link:hover {
+    background-color: rgba(255, 255, 255, .075);
+    /* 背景顏色改變 */
+    border-left: 3px solid #3b7ddd;
+    /* 左邊的邊框顏色改變 */
+}
+
+/* 頭像的樣式 */
+.avatar {
+    height: 40px;
+    /* 頭像高度 */
+    width: 40px;
+    /* 頭像寬度 */
+}
+
+/* 導航欄擴展時的樣式 */
+.navbar-expand .navbar-nav {
+    margin-left: auto;
+    /* 使導航欄項目向右對齊 */
+}
+
+/* 側邊欄項目的樣式 */
+.sidebar-item {
+    position: relative;
+    /* 相對定位，用於控制內部元素的位置 */
+}
+
+/* 側邊欄未展開時的子選單樣式，隱藏在側邊 */
+#sidebar:not(.expand) .sidebar-item .sidebar-dropdown {
+    position: absolute;
+    /* 絕對定位 */
+    top: 0;
+    /* 與父元素的頂部對齊 */
+    left: 70px;
+    /* 側邊欄寬度 */
+    background-color: #0e2238;
+    /* 子選單背景色 */
+    padding: 0;
+    /* 移除內間距 */
+    min-width: 15rem;
+    /* 子選單最小寬度 */
+    display: none;
+    /* 初始隱藏 */
+}
+
+/* 側邊欄未展開時，子選單在 hover 時顯示 */
+#sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {
+    display: block;
+    /* 顯示子選單 */
+    max-height: 15em;
+    /* 設置子選單的最大高度 */
+    width: 100%;
+    /* 設置子選單寬度 */
+    opacity: 1;
+    /* 設置透明度 */
+}
+
+/* 側邊欄展開時，下拉箭頭的樣式 */
+#sidebar.expand .sidebar-link[data-bs-toggle="collapse"]::after {
+    border: solid;
+    /* 設置箭頭邊框 */
+    border-width: 0 .075rem .075rem 0;
+    /* 設置箭頭邊框寬度 */
+    content: "";
+    /* 插入空內容作為箭頭 */
+    display: inline-block;
+    /* 設置為行內塊元素 */
+    padding: 2px;
+    /* 設置內間距 */
+    position: absolute;
+    /* 絕對定位 */
+    right: 1.5rem;
+    /* 距離右邊的距離 */
+    top: 1.4rem;
+    /* 距離頂部的距離 */
+    transform: rotate(-135deg);
+    /* 旋轉箭頭 */
+    transition: all .2s ease-out;
+    /* 過渡效果 */
+}
+
+/* 側邊欄展開時，下拉箭頭展開狀態的樣式 */
+#sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
+    transform: rotate(45deg);
+    /* 旋轉箭頭 */
+    transition: all .2s ease-out;
+    /* 過渡效果 */
+}
+

@@ -1,0 +1,154 @@
+﻿@model IEnumerable<Movie_Theater.Models.Actors>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- datatables JS樣式 -->
+    <link href="~/lib/datatables/css/jquery.datatables.min.css" rel="stylesheet" />
+    <!-- font-awesome樣式 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <!-- sweetalert2樣式 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            max-width: 95%;
+        }
+
+        .card {
+            margin-top: 20px;
+        }
+
+        .card-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+        }
+
+        .btn {
+            margin-right: 10px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table th, .table td {
+            white-space: nowrap;
+        }
+
+        thead {
+            background-color: #1ABC9C;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="card">
+        <div class="card-header">
+            <h3>演員管理</h3>
+        </div>
+        <div class="card-body">
+            <p>
+                <a asp-action="Create" class="btn btn-primary">新增演員</a>
+            </p>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.ActorName)</th>
+                            <th>維護鍵</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.ActorName)</td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-action="Edit" asp-route-id="@item.ActorId" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.ActorId" class="btn btn-danger delete-button">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <!-- datatable套件 -->
+    <script src="~/lib/datatables/js/jquery.datatables.min.js" asp-append-version="true"></script>
+    <!-- datatable 套件 -->
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <!-- datatable凍結標題套件 -->
+    <script src="//cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
+    <!-- sweetalert2套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+    <script src="~/js/data_change_result.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable({
+                fixedHeader: { header: true },
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/zh-HANT.json',
+                },
+                autoWidth: false,
+                columns: [
+                    { "width": "50%" },
+                    { "width": "50%" },
+                ],
+                columnDefs: [
+                    {
+                        "targets": "_all",
+                        "className": "text-center"
+                    }]
+            });
+
+            // 使用 SweetAlert2 進行刪除確認
+            $('.delete-button').on('click', function (e) {
+                e.preventDefault(); // 防止表單自動提交或連結跳轉
+                const url = $(this).attr('href'); // 取得刪除的 URL
+
+                Swal.fire({
+                    title: '確定要刪除嗎？',
+                    text: "這個操作將無法復原！",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: '是的，刪除！',
+                    cancelButtonText: '取消'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // 如果用戶確認刪除，導向刪除的 URL
+                        window.location.href = url;
+                    }
+                });
+            });
+
+            // 顯示操作成功或失敗的提示框
+            let success = '@Html.Raw(TempData["ChangeResult"])';
+            DataChangeResult(success);
+        });
+    </script>
+}

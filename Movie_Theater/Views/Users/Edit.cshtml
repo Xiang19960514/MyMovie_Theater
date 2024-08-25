@@ -1,0 +1,80 @@
+﻿@model Movie_Theater.Models.Users
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1 class="text-center my-4">Edit User</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #f5f5dc;">
+        <div class="card-body">
+            <h4 class="card-title">User Details</h4>
+            <hr />
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="UserId" />
+                <div class="form-group mb-3">
+                    <label asp-for="UserName" class="form-label"></label>
+                    <input asp-for="UserName" class="form-control" />
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="NickName" class="form-label"></label>
+                    <input asp-for="NickName" class="form-control" />
+                    <span asp-validation-for="NickName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Birthday" class="form-label"></label>
+                    <input asp-for="Birthday" class="form-control" type="date" />
+                    <span asp-validation-for="Birthday" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Phone" class="form-label"></label>
+                    <input asp-for="Phone" class="form-control"/>
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Sex" class="form-label"></label>
+                    <select asp-for="Sex" class="form-control" asp-items="ViewBag.userSex"></select>
+                    <span asp-validation-for="Sex" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Address" class="form-label"></label>
+                    <input asp-for="Address" class="form-control" />
+                    <span asp-validation-for="Address" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="MBTI" class="form-label"></label>
+                    <select asp-for="MBTI" class="form-control" asp-items="ViewBag.MBTI"></select>
+                    <span asp-validation-for="MBTI" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="EmailConfirm" class="form-label"></label>
+                    <select asp-for="EmailConfirm" class="form-control" asp-items="ViewBag.EmailConfirm"></select>
+                    <span asp-validation-for="EmailConfirm" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Save" class="btn btn-lg" style="background-color: #4682b4; color: white; border-radius: 50px; padding: 10px 30px; font-size: 1.2em;" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+    </script>
+}

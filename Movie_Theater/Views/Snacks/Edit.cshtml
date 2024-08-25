@@ -1,0 +1,49 @@
+﻿@model Movie_Theater.Models.Snacks
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1 class="text-center my-4">Edit Snack</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #f0f8ff;">
+        <div class="card-body">
+            <h4 class="card-title">Snack Details</h4>
+            <hr />
+            <form asp-action="Edit" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="SnackId" />
+                <div class="form-group mb-3">
+                    <label asp-for="SnackName" class="form-label"></label>
+                    <input asp-for="SnackName" class="form-control" />
+                    <span asp-validation-for="SnackName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="SnackImages" class="form-label"></label>
+                    <partial name="_SnacksShowImagePartial" />
+                    <input asp-for="SnackImages" type="file" accept="image/*" class="form-control" />
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Save" class="btn btn-lg" style="background-color: #4682b4; color: white; border-radius: 50px; padding: 10px 30px; font-size: 1.2em;" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/site - image.js"></script>    
+   
+}

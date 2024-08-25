@@ -1,0 +1,290 @@
+﻿@{
+    ViewData["Title"] = "Data Analysis"; // 設定網頁標題為 "Data Analysis"
+}
+
+@section Styles
+{
+    <style>
+        /* 定義 checkbox 群組的樣式 */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+            /* 定義每個 checkbox 的標籤樣式 */
+            .checkbox-group label {
+                margin-right: 10px;
+            }
+    </style>
+}
+
+<div>
+    <!-- 單選下拉選單，用於選擇分析項目 -->
+    <select class="form-select w-25 my-3" id="dropdownMenuButton1" onchange="handleSelectChange(this)">
+        <option selected disabled>請選擇分析項目</option>
+        <option value="gender">性別</option>
+        <option value="booking">訂單數量</option>
+        <option value="revenue">營業額</option>
+    </select>
+</div>
+
+<!-- 單選下拉選單（訂單數量分析用） -->
+<select class="form-select w-25 my-3" id="YearDropdownSingle" onchange="changYear(this)">
+    <option value="0" selected disabled>選擇年份</option>
+    @foreach (var item in ViewBag.Year)
+    {
+        <option value="@item">@item</option>
+    }
+</select>
+
+<!-- Checkbox 群組（營業額分析用） -->
+<div id="YearCheckboxGroup" class="checkbox-group" style="display:none;">
+    @foreach (var item in ViewBag.Year)
+    {
+        <label><input type="checkbox" class="year-checkbox" value="@item" onchange="changYear(this)"> @item 年</label>
+    }
+</div>
+
+<!-- 圖表容器，將動態生成的圖表嵌入此處 -->
+<div id="charts" class="d-flex flex-column align-items-center justify-content-center my-3">
+    <h5 id="chartTitle" class="card-title"></h5> <!-- 顯示圖表的標題 -->
+    <div id="chartContainer" class="d-flex justify-content-center" style="width: 100%; max-width: 2000px; height: 550px;"></div> <!-- 圖表的容器 -->
+</div>
+
+@section Scripts
+{
+    <!-- 引入 Chart.js 庫，用於繪製圖表 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        let chart; // 存儲 Chart.js 圖表實例
+        var bookcount = 0; // 存儲訂單數量
+
+        // 獲取指定年份的訂單數量並更新標題
+        function bookingTicketTypeCount(bookingyear) {
+            $.ajax({
+                url: `/Users/GetbookingCount/${bookingyear}`, // 向後端 API 請求訂單數量
+                type: 'GET', // 使用 GET 方法
+            }).done(data => {
+                console.log(data);
+                //bookcount = data[0].year;
+                data.forEach(b => {
+                    bookcount = b.year; // 取得訂單數量
+                });
+                $("#chartTitle").text(`${bookingyear}年訂票數量分析 ${bookcount}`); // 更新標題顯示
+            }).fail(err => {
+                alert('呼叫失敗'); // 處理請求失敗的情況
+            });
+        }
+
+        // 繪製訂單數量圖表
+        function bookingchart(year) {
+            $.ajax({
+                url: `/Users/Getbooking/${year}`, // 向後端 API 請求指定年份的訂單數據
+                type: 'GET', // 使用 GET 方法
+            }).done(data => {
+                console.log(data);
+                hide();  // 隱藏並移除當前的圖表
+
+                // 動態創建新的 canvas 容器
+                const canvasId = document.getElementById('dropdownMenuButton1');
+                const canvas = document.createElement('canvas');
+                canvas.id = canvasId.value;
+                $("#chartContainer").append(canvas);
+
+                // 根據選擇的年份生成相應的圖表
+                const ctx = document.getElementById(canvasId.value).getContext('2d');
+                const bookingData = data;
+                const movieNames = [...new Set(bookingData.map(data => data.movieName))]; // 獲取電影名稱
+                const months = [...new Set(bookingData.map(data => data.month))].sort((a, b) => a - b); // 獲取並排序月份
+
+                const datasets = movieNames.map(movieName => {
+                    return {
+                        label: movieName,
+                        data: months.map(month => {
+                            const record = bookingData.find(data => data.month === month && data.movieName === movieName);
+                            return record ? record.bookingCount : 0; // 將數據與月份對應
+                        }),
+                        backgroundColor: getRandomColor(), // 動態生成背景顏色
+                        borderColor: getRandomColor(), // 動態生成邊框顏色
+                        borderWidth: 1,
+                    };
+                });
+
+                // 使用 Chart.js 繪製條形圖
+                chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months.map(month => `${month}月`), // X 軸標籤為月份
+                        datasets: datasets,
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true // Y 軸從 0 開始
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+
+            }).fail(err => {
+                alert(err); // 處理請求失敗的情況
+            });
+        }
+
+        // 獲取指定年份的營業額數據並繪製圖表
+        function Getrevenue(years) {
+            let datasets = [];
+            let totalRevenue = 0; // 總營業額
+
+            // 遍歷每個年份，並發送 AJAX 請求獲取對應的營業額數據
+            const promises = years.map(year => {
+                return $.ajax({
+                    url: `/Users/Getrevenue/${year}`, // 向後端 API 請求指定年份的營業額數據
+                    type: 'GET', 
+                    dataType: 'json'
+                }).done(data => {
+                    let month = [];
+                    let monthRevenue = [];
+                    data.forEach(all => {
+                        month.push(all.month); // 月份
+                        monthRevenue.push(all.revenue); // 月份營業額
+                        totalRevenue += all.revenue; // 累加營業額
+                    });
+
+                    datasets.push({
+                        label: `${year}年營業額`,
+                        data: monthRevenue,
+                        backgroundColor: getRandomColor(), // 動態生成背景顏色
+                        borderColor: getRandomColor(), // 動態生成邊框顏色
+                        borderWidth: 2,
+                        fill: false
+                    });
+
+                }).fail(err => {
+                    alert(`無法獲取 ${year} 年的營業額數據：` + err.responseText);
+                });
+            });
+
+            // 等待所有 AJAX 請求完成後繪製圖表
+            $.when.apply($, promises).done(() => {
+                hide();
+                const canvasId = document.getElementById('dropdownMenuButton1');
+                const canvas = document.createElement('canvas');
+                canvas.id = canvasId.value;
+                $("#chartContainer").append(canvas);
+
+                const ctx = document.getElementById(canvasId.value).getContext('2d');
+                $("#chartTitle").text(`營業額分析 - 總營業額：${totalRevenue}`); // 顯示總營業額
+
+                // 使用 Chart.js 繪製折線圖
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: Array.from({ length: 12 }, (_, i) => `${i + 1}月`), // X 軸標籤為 1 至 12 月
+                        datasets: datasets
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true // Y 軸從 0 開始
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            });
+        }
+
+        // 隱藏並移除當前圖表
+        function hide() {
+            if (chart) {
+                chart.destroy(); // 銷毀當前圖表實例
+                chart = null;
+            }
+            $("#chartContainer").empty(); // 清空圖表容器
+        }
+
+        // 處理年份選擇變更的邏輯
+        function changYear() {
+            const chartType = document.getElementById('dropdownMenuButton1').value; // 獲取選擇的分析類型
+
+            if (chartType === "booking") {
+                const year = $('#YearDropdownSingle').val(); // 獲取選擇的年份
+                bookingchart(year); // 繪製訂單數量圖表
+                bookingTicketTypeCount(year); // 更新訂單數量標題
+            } else if (chartType === "revenue") {
+                const selectedYears = Array.from(document.querySelectorAll('.year-checkbox:checked')).map(cb => cb.value); // 獲取選擇的年份
+                $("#chartTitle").text('營業額分析'); // 更新標題
+                Getrevenue(selectedYears); // 繪製營業額圖表
+            }
+        }
+
+        // 處理下拉選單選擇變更的邏輯
+        function handleSelectChange(select) {
+            const value = select.value;
+            $('#YearDropdownSingle').val('0');
+            $('.year-checkbox').prop('checked', false);
+            hide(); // 隱藏當前圖表
+            $("#YearDropdownSingle").hide();
+            $("#YearCheckboxGroup").hide();
+            $("#chartTitle").text('');
+
+            // 根據選擇的分析類型顯示對應的輸入控件
+            if (value === "booking") {
+                $("#YearDropdownSingle").show();
+            } else if (value === "revenue") {
+                $("#YearCheckboxGroup").show();
+            } else if (value === "gender") {
+                $("#chartTitle").text(select.options[select.selectedIndex].text); // 更新標題
+                generateChart(value); // 繪製性別分佈圖表
+            }
+        }
+
+        // 根據選擇的圖表類型生成相應的圖表
+        function generateChart(chartType) {
+            const canvasId = chartType + "Chart";
+            const canvas = document.createElement('canvas');
+            canvas.id = canvasId;
+            $("#chartContainer").append(canvas);
+            const ctx = document.getElementById(canvasId).getContext('2d');
+
+            if (chartType === "gender") {
+                // 繪製性別分佈餅圖
+                chart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['男', '女'],
+                        datasets: [{
+                            data: [@ViewBag.boy, @ViewBag.girl], // 使用 ViewBag 傳遞的數據
+                            backgroundColor: ['rgba(54, 162, 235, 0.2)', 'rgba(255, 99, 132, 0.2)'],
+                            borderColor: ['rgba(54, 162, 235, 1)', 'rgba(255, 99, 132, 1)'],
+                            borderWidth: 1
+                        }]
+                    }
+                });
+            }
+        }
+
+        // 頁面加載時隱藏年份選擇控件
+        $(document).ready(function () {
+            $("#YearDropdownSingle").hide();
+            $("#YearCheckboxGroup").hide();
+        });
+
+        // 隨機生成顏色的工具函數
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }
+    </script>
+}

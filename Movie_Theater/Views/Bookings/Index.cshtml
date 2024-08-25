@@ -1,0 +1,257 @@
+﻿@model IEnumerable<Bookings_ViewModel>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles
+{
+    <!-- datatables JS樣式 -->
+    <link href="~/lib/datatables/css/jquery.datatables.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.css" rel="stylesheet" />
+    <!-- font-awesome樣式 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <style>
+        .detail_table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .detail_table th, .detail_table td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .detail_table th {
+        background-color: #f2f2f2;
+        }
+
+        .Booking_table thead {
+            background-color: white;
+        }
+    </style>
+}
+
+<h1 class="text-center">訂單查詢</h1>
+
+<table class="Booking_table row-border">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MerchantTradeNo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BookingStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TransactionId)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentMethod)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PaymentDate)
+            </th>
+            <th>明細</th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookingId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookingDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MerchantTradeNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.BookingStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentMethod)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PaymentDate)
+            </td>
+            <td>
+                    <div class="d-flex justify-content-around">
+                    <button class="btn btn-primary my-2" data-bs-toggle="modal" data-bs-target="#detail-@item.BookingId">
+                        訂票<br>明細
+                    </button>
+                    <button class="btn btn-primary my-2" data-bs-toggle="modal" data-bs-target="#snack-@item.BookingId">
+                        餐點<br>明細
+                    </button>
+                </div>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@foreach (var item in Model)
+{
+    <!-- detail Modal -->
+    <div class="modal fade" id="detail-@item.BookingId" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">訂單明細</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="detail_table">
+                        <thead>
+                            <tr>
+                                <th>訂單編號</th>
+                                <th>影廳</th>
+                                <th>電影</th>
+                                <th>分級</th>
+                                <th>語系</th>
+                                <th>座位(排)</th>
+                                <th>座位(號)</th>
+                                <th>座位類型</th>
+                                <th>票種類型</th>
+                                <th>價錢</th>
+                                <th>放映時間</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @{
+                            int number = 0;
+                        }
+                        @for (int i = 0; i < item.ticketTypes.Count(); i++)
+                        { 
+                            for (int j = 0; j < item.ticketTypes.ElementAt(i).HowManySeatForType; j++)
+                            {
+                                var itemDetail = item.detials.ElementAt(number);
+                                <tr>
+                                    <td>@itemDetail.BookingId</td>
+                                    <td>@itemDetail.AuditoriumName</td>
+                                    <td>@itemDetail.MovieName</td>
+                                    <td>@itemDetail.Level</td>
+                                    <td>@itemDetail.Language</td>
+                                    <td>@itemDetail.SeatRow</td>
+                                    <td>@itemDetail.SeatNumber</td>
+                                    <td>@itemDetail.SeatType</td>
+                                    @if (j < 1)
+                                    {
+                                    <td rowspan="@item.ticketTypes.ElementAt(i).HowManySeatForType">
+                                        @item.ticketTypes.ElementAt(i).TypeName
+                                    </td>
+                                    <td rowspan="@item.ticketTypes.ElementAt(i).HowManySeatForType">
+                                        @item.ticketTypes.ElementAt(i).Price
+                                    </td>
+                                    }
+                                    <td>@itemDetail.ShowDateTime</td>
+                                </tr>
+                                number++;
+                            }
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- snacks Modal -->
+    <div class="modal fade" id="snack-@item.BookingId" tabindex="-1" aria-labelledby="detailModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailModalLabel">餐點明細</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="detail_table">
+                        <thead>
+                            <tr>
+                                <th>訂單編號</th>
+                                <th>餐點</th>
+                                <th>價錢</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var snackItem in item.snacks)
+                            {
+                                <tr>
+                                    <td>@snackItem.BookingId</td>
+                                    <td>@snackItem.SnackName</td>
+                                    <td>@snackItem.Price</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts
+{
+    <!-- datatable套件 -->
+    <script src="~/lib/datatables/js/jquery.datatables.min.js" asp-append-version="true"></script>
+    <!-- datatable 套件 -->
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <!-- datatable凍結標題套件 -->
+    <script src="//cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(".Booking_table").DataTable({
+                // 凍結欄位
+                fixedHeader: { header: true },
+                // 語系
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/zh-HANT.json',
+                },
+                autoWidth: false, // 預設為true　設置是否要自動調整表格寬度(false代表不要自適應)　
+                // 調整欄寬
+                columns: [
+                    { "width": "10%" }, // 訂單編號寬度為 20%
+                    { "width": "10%" }, // 會員編號寬度為 30%
+                    { "width": "15%" }, // 訂單日期寬度為 30%
+                    { "width": "10%" }, // 商家編號寬度為 50%
+                    { "width": "10%" }, // 訂單狀態寬度為 50%
+                    { "width": "10%" }, // 交易編號寬度為 50%
+                    { "width": "10%" }, // 付款方式寬度為 50%
+                    { "width": "15%" }, // 付款日期寬度為 50%
+                    { "width": "10%" }, // 其他寬度為 50%
+                ],
+                columnDefs: [
+                    {
+                        "targets": "_all",  // 對所有列應用
+                        "className": "text-center" // 使用定義的 CSS 類進行置中對齊
+                    }
+                ]
+            })
+        })
+    </script>
+}

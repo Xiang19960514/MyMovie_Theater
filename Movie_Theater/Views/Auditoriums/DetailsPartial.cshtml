@@ -1,0 +1,54 @@
+﻿@model Movie_Theater.Models.Auditoriums
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
+        <div class="card-body">
+            <h4 class="card-title text-center">詳細頁面</h4>
+            <hr />
+            <div class="row">
+                <!-- 左邊部分：顯示詳細信息 -->
+                <div class="col-12">
+                    <dl class="row">
+                        <dt class="col-sm-5 text-end fw-bold">
+                            <!-- 使用 `text-end` 使標籤文字靠右對齊 -->
+                            @Html.DisplayNameFor(model => model.Theater)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.Theater.TheaterName)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.AuditoriumName)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.AuditoriumName)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TotalSeats)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TotalSeats)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.AuditoriumType)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.AuditoriumType)
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center my-4">
+        <a asp-action="Edit" asp-route-id="@Model?.AuditoriumId" class="btn btn-primary mx-2">進行修改</a>
+        <a asp-action="Index" class="btn btn-secondary mx-2">返回列表</a>
+    </div>
+</div>

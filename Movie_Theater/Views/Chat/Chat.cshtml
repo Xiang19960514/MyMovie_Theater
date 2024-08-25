@@ -1,0 +1,134 @@
+﻿@section Styles
+{
+    <style>
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 10px;
+            box-sizing: border-box;
+            margin: 0 auto;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            text-align: center;
+            padding: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            background-color: #4CAF50;
+            color: white;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 10px;
+        }
+
+        #messagesList {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 0;
+            list-style-type: none;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            max-width: 80%;
+            word-break: break-word;
+        }
+
+            .message.sent {
+                align-self: flex-end;
+                background-color: #d1ffd1;
+            }
+
+            .message.received {
+                align-self: flex-start;
+                background-color: #e1e1e1;
+            }
+
+        .input-container {
+            display: flex;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        #sendButton {
+            padding: 10px 20px;
+            border: none;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+            #sendButton:hover {
+                background-color: #45a049;
+            }
+    </style>
+}
+
+<div class="chat-container">
+    <div class="chat-header">聊天室(客服)</div>
+    <ul id="messagesList"></ul>
+    <div class="input-container">
+        <input type="text" id="userInput" placeholder="User name" value="客服" style="display: none;" />
+        <input type="text" id="messageInput" placeholder="Message" />
+        <button id="sendButton">Send</button>
+    </div>
+</div>
+@section Scripts
+{
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/5.0.7/signalr.min.js"></script>
+    <script type="text/javascript">
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chathub")
+            .build();
+
+        // 當接收到訊息時的處理
+        connection.on("ReceiveMessage", (user, message) => {
+            const li = document.createElement("li");
+            li.textContent = `${user}: ${message}`;
+            li.className = 'message received';
+            document.getElementById("messagesList").appendChild(li);
+        });
+
+        connection.start().catch(err => console.error(err.toString()));
+
+        // 處理發送按鈕點擊事件
+        document.getElementById("sendButton").addEventListener("click", function (event) {
+            const user = document.getElementById("userInput").value;
+            const message = document.getElementById("messageInput").value;
+
+            // 發送訊息到 SignalR
+            connection.invoke("SendMessage", user, message)
+                .catch(err => console.error(err.toString()));
+
+            // 添加發送的訊息到列表
+            const li = document.createElement("li");
+            li.textContent = `${user}: ${message}`;
+            li.className = 'message sent';
+            document.getElementById("messagesList").appendChild(li);
+
+            document.getElementById("messageInput").value = ''; // 清空輸入框
+            event.preventDefault();
+        });
+    </script>
+} 

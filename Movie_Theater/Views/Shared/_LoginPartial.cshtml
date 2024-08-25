@@ -1,0 +1,49 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+
+<nav class="navbar navbar-expand px-3 border-bottom">
+    <button class="btn" id="sidebar-toggle" type="button">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="navbar-collapse navbar">
+        <ul class="navbar-nav">
+            <li class="nav-item dropdown">
+                <span>@HttpContextAccessor.HttpContext.Session.GetString("Login_User")</span>
+                <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-0">
+                    <img src="~/images/account.png" class="avatar img-fluid rounded" alt="">
+                </a>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <a href="#" class="dropdown-item">修改資料</a>
+                    <a href="#" class="dropdown-item">設定</a>
+                    <hr>
+                    <a asp-controller="Login" asp-action="Logout" class="dropdown-item">登出</a>
+                </div>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+@* <ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+    </li>
+    <li class="nav-item">
+        <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+            <button  type="submit" class="nav-link btn btn-link text-dark">Logout</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+    </li>
+}
+</ul> *@

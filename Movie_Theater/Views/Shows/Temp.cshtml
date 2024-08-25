@@ -1,0 +1,73 @@
+﻿@model IEnumerable<Theaters>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles
+{
+    <style>
+        .card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* 滑鼠懸停時顯示陰影效果 */
+            transform: scale(1.02);
+            /* 滑鼠懸停時放大 1.02 倍 */
+            transition: 0.3s;
+            /* 懸停效果的過渡時間 */
+        }
+
+        .card {
+            transition: 0.3s;
+            /* 卡片懸停效果的過渡時間 */
+            width: 25rem;
+            /* 設定每張卡片的固定寬度 */
+        }
+
+    </style>
+}
+
+<div class="container mt-5">
+    <div class="row" id="card-container">
+        <!-- 動態生成的卡片將插入這裡 -->
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script>
+
+        // 從模型獲取卡片數據
+        const cards = @Html.Raw(Json.Serialize(Model.Select(s => new { s.TheaterImage, s.TheaterName, s.TheaterId })));
+
+        // 卡片數據
+        // const cards = [
+        //     { title: '卡片標題 1', text: '這是卡片的內容。', img: 'https://via.placeholder.com/150' },
+        //     { title: '卡片標題 2', text: '這是卡片的內容。', img: 'https://via.placeholder.com/150' },
+        //     { title: '卡片標題 3', text: '這是卡片的內容。', img: 'https://via.placeholder.com/150' },
+        //     { title: '卡片標題 4', text: '這是卡片的內容。', img: 'https://via.placeholder.com/150' },
+        //     { title: '卡片標題 5', text: '這是卡片的內容。', img: 'https://via.placeholder.com/150' }
+        // ];
+
+        // 獲取卡片容器
+        const cardContainer = document.getElementById('card-container');
+        console.log(cards);
+        // 動態生成卡片並插入容器
+        cards.forEach(card => {
+            const cardHtml = `
+                                <div class="col-md-4 mb-4">
+                                    <div class="card">
+                                        <img src="https://via.placeholder.com/150" class="card-img-top" alt="Card Image">
+                                        <div class="card-body">
+                                            <p class="card-text">${card.theaterName}</p>
+                                            <a href="/Shows/Create/${card.theaterId}" class="btn btn-primary">管理場次</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            `;
+            cardContainer.innerHTML += cardHtml;
+        });
+    </script>
+}
+
+

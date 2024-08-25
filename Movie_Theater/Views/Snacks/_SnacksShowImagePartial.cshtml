@@ -1,0 +1,10 @@
+﻿@model Movie_Theater.Models.Snacks
+
+@if (Model.SnackImages == null)
+{
+    <img src="~/images/NoImage.jpg" title="尚無圖案" class="my-3 img-thumbnail w-100" style="max-width: 100px; height: auto;" />
+}
+else
+{
+    <img src="@Html.DisplayFor(model => model.SnackImages)" title="@Model.SnackName" class="my-3 img-thumbnail w-100" style="max-width: 100px; height: auto;" />
+}

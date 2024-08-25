@@ -1,0 +1,428 @@
+﻿@model MoviesViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+<h2 class="form-header text-center">新增電影</h2>
+<hr />
+<form asp-action="Create" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+    <div class="row">
+        <!-- 左邊部分：輸入字段 -->
+        <div class="col-4">
+            <div class="mb-3">
+                <label for="movieSelect" class="form-label">選擇電影</label>
+                <select id="movieSelect" name="movieSelect" class="form-control">
+                    <option value="">請選擇電影</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieName" class="form-label">電影名稱</label>
+                <input asp-for="MovieName" id="MovieName" class="form-control" placeholder="輸入電影名稱" required />
+                <span asp-validation-for="MovieName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieEnglishName" class="form-label">電影英文名稱</label>
+                <input asp-for="MovieEnglishName" id="MovieEnglishName" class="form-control" placeholder="輸入電影英文名稱" required />
+                <span asp-validation-for="MovieEnglishName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="ReleaseDate" class="form-label">上映日期</label>
+                <input asp-for="ReleaseDate" id="ReleaseDate" class="form-control" type="date" required />
+                <span asp-validation-for="ReleaseDate" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Runtime" class="form-label">片長</label>
+                <input asp-for="Runtime" id="Runtime" class="form-control" placeholder="輸入片長" required />
+                <span asp-validation-for="Runtime" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Level" class="form-label">級別</label>
+                <select asp-for="Level" id="Level" class="form-control" required>
+                    <option value="">請選擇級別</option>
+                    <option value="0">普遍級</option>
+                    <option value="6">保護級</option>
+                    <option value="12">輔導級(12)</option>
+                    <option value="15">輔導級(15)</option>
+                    <option value="18">限制級</option>
+                </select>
+                <span asp-validation-for="Level" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Language" class="form-label">語言</label>
+                <select asp-for="Language" id="Language" class="form-control" required>
+                    <option value="">請選擇語言</option>
+                    <option value="中文">中文</option>
+                    <option value="英文">英文</option>
+                </select>
+                <span asp-validation-for="Language" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="DirectorName" class="form-label">導演名稱</label>
+                <input asp-for="DirectorName" id="DirectorName" class="form-control" placeholder="輸入導演名稱" required />
+                <span asp-validation-for="DirectorName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MovieDescription" class="form-label">描述</label>
+                <textarea asp-for="MovieDescription" id="MovieDescription" class="form-control" rows="7" placeholder="輸入描述" required></textarea>
+                <span asp-validation-for="MovieDescription" class="text-danger"></span>
+            </div>
+        </div>
+        <input asp-for="ActorNameJson" type="hidden" class="form-control" />
+        <input asp-for="GenreNameJson" type="hidden" class="form-control" />
+        <!-- 右邊部分：圖片和影片上傳 -->
+        <div class="col-8 text-center">
+            <div class="card mb-3 text-center mt-4">
+                <label class="form-label fs-3 mt-2">電影海報</label>
+                <hr class="m-0 mb-3" />
+                <img id="posterPreview" src="~/images/No_Image.jpg" title="尚無圖案" class="my-3 mx-auto d-block" style="width: 600px; height: 715px;"/>
+                <!-- 用於存儲海報URL的隱藏欄位 -->
+                <input asp-for="MovieImage" type="hidden" id="PosterUrl" />              
+            </div>
+            <!-- 文件上傳欄位 -->
+            <input asp-for="MovieImage" type="file" accept="image/*" class="form-control my-3" />
+        </div>
+
+    </div>
+
+    <!-- 預告片網址 -->
+    <div class="row">
+        <div class="col-12">
+            <div class="mb-3">
+                <label asp-for="Movievideo" class="form-label fs-3">預告片網址</label>
+                <input asp-for="Movievideo" id="Movievideo" class="form-control" type="url" placeholder="輸入預告片URL" />
+                <div class="ratio ratio-16x9 mt-3">
+                    <iframe id="movieVideoPreview" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+                <span asp-validation-for="Movievideo" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交按鈕 -->
+    <div class="text-center my-4">
+        <button type="submit" class="btn btn-primary btn-submit">提交</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+    </div>
+</form>
+
+
+
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/form_validation.js"></script>
+    <script>
+    $(document).ready(function () {
+        // 初始化表單驗證函數
+        formValidation();
+
+        let imageTemp; // 用來存儲上傳的圖片的 Base64 編碼
+
+        // 當用戶選擇文件時觸發
+        $('#MovieImage').on("change", function () {
+            setTimeout(function () {
+                // 如果用戶沒有選擇文件，則顯示預設的無圖片圖片
+                if ($('#MovieImage').val() == "") {
+                    $('#posterPreview').attr("src", "/images/No_Image.jpg");
+                }
+            }, 100); // 延遲執行，以確保文件選擇動作完成
+            
+            var allowType = "image.*"; // 允許的檔案類型
+            var file = this.files[0]; // 獲取用戶選擇的第一個文件
+            
+            if (file != undefined) {
+                // 檢查選擇的檔案是否為圖像類型
+                if (file.type.match(allowType)) {
+                    var reader = new FileReader(); // 創建 FileReader 物件來讀取文件
+                    reader.onload = function (e) {
+                        // 當文件讀取完成後，設置預覽圖片
+                        $('#posterPreview').attr("src", e.target.result); // 設置圖片預覽來源
+                        $('#posterPreview').attr("title", file.name); // 顯示檔案名稱
+                        imageTemp = e.target.result; // 保存圖片的 Base64 編碼
+                    }
+                    reader.readAsDataURL(file); // 讀取文件為 Data URL
+                } else {
+                    // 如果選擇的檔案類型不被允許，顯示警告並清空檔案選擇
+                    alert("不支援的檔案上傳類型");
+                    $('#MovieImage').val('');
+                }
+            }
+        });
+
+        // 新增的預覽影片功能
+        $('#Movievideo').on("input", function () {
+            var videoUrl = $(this).val(); // 獲取用戶輸入的影片網址
+            var embedUrl = convertToEmbedUrl(videoUrl); // 將影片網址轉換為嵌入網址
+            $('#movieVideoPreview').attr('src', embedUrl); // 設置影片預覽來源
+        });
+
+        // 將普通影片網址轉換為 YouTube 嵌入格式的網址
+        function convertToEmbedUrl(url) {
+            // 定義正則表達式來匹配 YouTube 網址中的影片 ID
+            var regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+            var match = url.match(regex); // 匹配網址並提取影片 ID
+            if (match && match[1]) {
+                return "https://www.youtube.com/embed/" + match[1]; // 返回嵌入格式的網址
+            }
+            return ""; // 如果匹配失敗，返回空字串
+        }
+
+        // TMDb API 整合
+        const apiKey = '27af82b309413aa9fd5869f2ec44034c'; // 你的 TMDb API 金鑰
+        const apiUrl = `https://api.themoviedb.org/3/movie/popular?api_key=${apiKey}&language=zh-TW&page=1`; // TMDb API 的熱門電影網址
+        let allMovies = []; // 用於儲存所有有預告片的電影
+
+        // 搜索熱門電影並過濾出有預告片的電影，限制數量為 50 部
+        function fetchMovies(page = 1) {
+            // 如果頁碼超過 500 或電影數量達到 50 部，停止請求
+            if (page > 500 || allMovies.length >= 50) {
+                console.warn('已達到最大頁數限制或達到電影數量限制，停止請求。');
+                populateDropdown(allMovies); // 填充下拉選單
+                return;
+            }
+
+            // 發送請求獲取當前頁面的電影數據
+            fetch(apiUrl.replace('page=1', `page=${page}`))
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.results && data.results.length > 0) {
+                        // 遍歷每部電影，檢查是否有預告片
+                        const moviePromises = data.results.map(movie => {
+                            return fetch(`https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${apiKey}&language=zh-TW`)                                
+                                .then(response => response.json())
+                                .then(videoData => {
+                                    // 檢查是否有預告片
+                                    const hasTrailer = videoData.results.some(video => video.type === 'Trailer');
+                                    if (hasTrailer) {
+                                        movie.trailerUrl = `https://www.youtube.com/watch?v=${videoData.results.find(video => video.type === 'Trailer').key}`;
+                                        return movie;
+                                    }
+                                    return null;
+                                });
+                        });
+
+                        // 等待所有電影的預告片檢查完成
+                        Promise.all(moviePromises).then(moviesWithTrailers => {
+                            moviesWithTrailers.forEach(movie => {
+                                if (movie && allMovies.length < 50) {
+                                    allMovies.push(movie); // 添加有預告片的電影到 allMovies 陣列
+                                }
+                            });
+
+                            // 如果電影數量少於 50 且還有更多頁面，繼續請求下一頁
+                            if (allMovies.length < 50 && page < data.total_pages) {
+                                fetchMovies(page + 1);
+                            } else {
+                                populateDropdown(allMovies); // 填充下拉選單
+                            }
+                        });
+                    } else {
+                        console.error("API 返回錯誤或無結果");
+                    }
+                })
+                .catch(error => {
+                    console.error('API 請求失敗:', error); // 顯示錯誤詳細信息
+                    alert('無法載入電影資料，請檢查控制台錯誤訊息。');
+                });
+        }
+
+        // 將所有有預告片的電影填充到下拉選單中
+        function populateDropdown(movies) {
+            const movieSelect = document.getElementById('movieSelect'); // 獲取下拉選單元素
+            const addedTitles = new Set(); // 用來追踪已經加入的電影名稱
+            movies.forEach(movie => {
+                if (!addedTitles.has(movie.title)) { // 如果電影名稱還沒被加入
+                    const option = document.createElement('option'); // 創建新的選項
+                    option.value = movie.id; // 設置選項值為電影 ID
+                    option.textContent = movie.title; // 設置選項文本為電影標題
+                    movieSelect.appendChild(option); // 將選項添加到下拉選單中
+                    addedTitles.add(movie.title); // 將電影名稱加入到 Set 中，避免重複
+                }
+            });
+        }
+
+        var actor = []; // 用來存儲演員資料的陣列
+        var genres = []; // 儲存類型
+        // 當用戶選擇電影時，獲取並顯示電影詳細資料
+        document.getElementById('movieSelect').addEventListener('change', function () {
+            const movieId = this.value; // 獲取選中的電影 ID
+            const selectedMovie = allMovies.find(movie => movie.id == movieId); // 在 allMovies 中查找選中的電影
+            
+            if (selectedMovie) {
+                // 請求電影的演員資料
+                fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}&language=zh-TW`)
+                .then(reponse => reponse.json())
+                    .then(data => {
+                        if (data && data.cast) {
+                            //console.log(data.cast); // 打印演員資料
+                            //console.log(data); // 打印完整的電影數據
+                            actor = []; // 清空現有的 actor 陣列
+                            const limitedCast = data.cast.slice(0, 15); // 取得前 8 位演員資料
+                            limitedCast.forEach(a => {
+                                // 將每位演員的資料推入 actor 陣列
+                                actor.push({
+                                    chineseName: a.name, // 演員的中文名稱
+                                    englishName: a.original_name, // 演員的英文名稱
+                                    order: a.order // 演員的排序
+                                });
+                            });
+                            $('#ActorNameJson').val(JSON.stringify(actor)); // 將演員資料轉為 JSON 字串並設置到隱藏欄位
+                        }
+                    })
+
+                // 請求電影的詳細資料 + 類型
+                fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=zh-TW`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data) {
+                            $('#MovieName').val(data.title || ''); // 設置電影名稱
+                            $('#MovieEnglishName').val(data.original_title || ''); // 設置電影英文名稱
+                            $('#ReleaseDate').val(formatReleaseDate(data.release_date)); // 設置電影發行日期
+
+                            if (data.runtime) {
+                                $('#Runtime').val(data.runtime); // 設置電影片長
+                            } else {
+                                $('#Runtime').val(''); // 清空片長欄位
+                            }
+                                if (data && data.genres)
+                                {
+                                    //console.log(data)
+                                    //console.log(data.genres)
+                                    const Traditional = {
+                                        "动作": "動作片",
+                                        "冒险": "冒險片",
+                                        "动画": "動畫片",
+                                        "喜剧": "喜劇片",
+                                        "犯罪": "犯罪片",
+                                        "纪录": "紀錄片",
+                                        "剧情": "劇情片",
+                                        "家庭": "家庭片",
+                                        "奇幻": "奇幻片",
+                                        "历史": "歷史片",
+                                        "恐怖": "恐怖片",
+                                        "音乐": "音樂片",
+                                        "悬疑": "懸疑片",
+                                        "爱情": "愛情片",
+                                        "科幻": "科幻片",
+                                        "电视电影": "電視電影片",
+                                        "惊悚": "驚悚片",
+                                        "战争": "戰爭片",
+                                        "西部": "西部片"
+                                    };
+                                    genres = [], //清空陣列
+                                    data.genres.forEach(g => {
+                                            const traditionalName = Traditional[g.name] || g.name;
+                                        genres.push({
+                                                GenreName: traditionalName //類型名稱
+                                        })
+                                    });
+                                    $('#GenreNameJson').val(JSON.stringify(genres)) // 把類型轉Json字串 並隱藏
+                                    console.log($('#GenreNameJson').val());
+                                }
+                                
+                            // 獲取電影的實際分級
+                            fetch(`https://api.themoviedb.org/3/movie/${movieId}/release_dates?api_key=${apiKey}`)
+                                .then(response => response.json())
+                                .then(releaseData => {
+                                    let rating = '';
+                                    const releases = releaseData.results; // 獲取所有分級資料
+
+                                    console.log('Release Dates Data:', releases); // 打印分級資料
+
+                                    // 優先檢查美國地區的分級
+                                    const usRelease = releases.find(release => release.iso_3166_1 === 'US');
+                                    if (usRelease && usRelease.release_dates.length > 0) {
+                                        rating = usRelease.release_dates[0].certification;
+                                    }
+
+                                    // 如果美國地區沒有分級，再檢查其他地區的分級
+                                    if (!rating) {
+                                        for (let release of releases) {
+                                            if (release.release_dates && release.release_dates.length > 0) {
+                                                rating = release.release_dates[0].certification;
+                                                if (rating) break; // 找到一個非空分級就退出
+                                            }
+                                        }
+                                    }
+
+                                    // 根據 TMDb 的分級直接設置級別
+                                    switch (rating) {
+                                        case 'G': // 普遍級
+                                            $('#Level').val('0');
+                                            break;
+                                        case 'PG':
+                                        case 'PG-13': // 保護級
+                                            $('#Level').val('6');
+                                            break;
+                                        case 'R': // 輔導級
+                                            $('#Level').val('15');
+                                            break;
+                                        case 'NC-17': // 限制級
+                                            $('#Level').val('18');
+                                            break;
+                                        default:
+                                            $('#Level').val('0'); // 未知分級則設為普遍級
+                                            console.warn('無法找到適當的分級，已將電影設定為普遍級');
+                                    }
+                                })
+                                .catch(error => {
+                                    console.error('無法獲取電影分級:', error);
+                                    $('#Level').val('0'); // 如果出現錯誤，默認為普遍級
+                                });
+
+                            const language = data.original_language === 'zh' ? '中文' : '英文'; // 根據語言設置語言
+                            $('#Language').val(language);
+
+                            $('#MovieDescription').val(data.overview || ''); // 設置電影描述
+                            $('#Movievideo').val(selectedMovie.trailerUrl || '無可用預告片'); // 設置預告片網址
+                            var embedUrl = convertToEmbedUrl(selectedMovie.trailerUrl); // 轉換為嵌入格式的網址
+                            $('#movieVideoPreview').attr('src', embedUrl); // 設置預告片預覽來源
+
+                            if (data.poster_path) {
+                                const posterUrl = `https://image.tmdb.org/t/p/w500${data.poster_path}`; // 設置海報圖片 URL
+                                $('#posterPreview').attr('src', posterUrl);
+                                $('#PosterUrl').val(posterUrl); // 設置隱藏的 PosterUrl 欄位
+                            } else {
+                                $('#posterPreview').attr('src', '/images/No_Image.jpg');
+                                $('#PosterUrl').val(''); // 清除隱藏的 PosterUrl 欄位
+                            }
+
+                            // 獲取導演資料
+                            fetch(`https://api.themoviedb.org/3/movie/${movieId}/credits?api_key=${apiKey}&language=zh-TW`)
+                                .then(response => response.json())
+                                .then(creditsData => {
+                                    const director = creditsData.crew.find(member => member.job === 'Director');
+                                    $('#DirectorName').val(director ? director.name : '未知'); // 設置導演名稱
+                                })
+                                .catch(error => console.error('無法獲取導演信息:', error));
+                        } else {
+                            console.error("API 返回錯誤或無結果");
+                        }
+                    })
+                    .catch(error => console.error('API 請求失敗:', error));
+            }
+        });
+
+        // 日期格式化函數，將日期格式化為 YYYY-MM-DD
+        function formatReleaseDate(dateString) {
+            const date = new Date(dateString); // 創建 Date 物件
+            const year = date.getFullYear(); // 獲取年份
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // 獲取月份並補零
+            const day = String(date.getDate()).padStart(2, '0'); // 獲取日期並補零
+            return `${year}-${month}-${day}`; // 返回格式化後的日期字串
+        }
+
+        // 開始初始請求，從第 1 頁開始
+        fetchMovies();
+    });
+</script>
+}

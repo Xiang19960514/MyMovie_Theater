@@ -1,0 +1,129 @@
+﻿@model IEnumerable<Movie_Theater.Models.Habbits>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles
+{
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <!-- datatables JS樣式 -->
+    <link href="~/lib/datatables/css/jquery.datatables.min.css" rel="stylesheet" />
+    <!-- font-awesome樣式 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+    <!-- sweetalert2樣式 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            margin-top: 50px;
+            max-width: 95%;
+        }
+
+        .card {
+            margin-top: 20px;
+        }
+
+        .card-header {
+            background-color: #343a40;
+            color: white;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+        }
+
+        .btn {
+            margin-right: 10px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table th, .table td {
+            white-space: nowrap;
+        }
+    </style>
+}
+
+
+
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h3>興趣管理</h3>
+        </div>
+        <div class="card-body">
+            <p>
+                <a asp-action="Create" class="btn btn-primary">Create New</a>
+            </p>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>@Html.DisplayNameFor(model => model.Habbit)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Habbit)</td>
+                                <td>
+                                    <div class="text-center">
+                                        <a asp-action="Edit" asp-route-id="@item.HabbitId" class="btn btn-primary"><i class="bi bi-pencil-square"></i></a>
+                                        <a asp-action="Delete" asp-route-id="@item.HabbitId" class="btn btn-danger" onclick="return confirm('確定要刪除嗎!!')">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts
+{
+    <!-- datatable套件 -->
+    <script src="~/lib/datatables/js/jquery.datatables.min.js" asp-append-version="true"></script>
+    <!-- datatable 套件 -->
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.js"></script>
+    <!-- datatable凍結標題套件 -->
+    <script src="//cdn.datatables.net/fixedheader/3.3.1/js/dataTables.fixedHeader.min.js"></script>
+    <!-- sweetalert2套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('table').DataTable();
+
+            let success = '@Html.Raw(TempData["Success"])';
+            if (success === '1') {
+                Swal.fire({
+                    title: "刪除成功",
+                    icon: "success"
+                });
+            }
+            if (success === '0') {
+                Swal.fire({
+                    title: "刪除失敗",
+                    icon: "error"
+                });
+            }
+
+        });
+    </script>
+}

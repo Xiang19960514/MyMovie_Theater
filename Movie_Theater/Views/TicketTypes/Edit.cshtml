@@ -1,0 +1,62 @@
+﻿@model Movie_Theater.Models.TicketTypes
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section Styles
+{
+    <style>
+        textarea{
+            height:150px;
+            resize:none;
+        }
+    </style>
+}
+<h1 class="text-center my-4">訂票管理</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #fafad2;">
+        <div class="card-body">
+            
+            <hr />
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="TicketTypeId" />
+                <div class="form-group mb-3">
+                    <label asp-for="TypeName" class="form-label"></label>
+                    <select asp-for="TypeName" class="form-control" asp-items="ViewBag.TypeName">
+                    </select>
+                    <span asp-validation-for="TypeName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="HowManySeatForType" class="form-label"></label>
+                    <input asp-for="HowManySeatForType" class="form-control"/>
+                    <span asp-validation-for="HowManySeatForType" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="TicketDescription" class="form-label"></label>
+                    <textarea asp-for="TicketDescription" class="form-control"></textarea>
+                    <span asp-validation-for="TicketDescription" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Save" class="btn btn-lg" style="background-color: #8b0000; color: white; border-radius: 50px; padding: 10px 30px; font-size: 1.2em;" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

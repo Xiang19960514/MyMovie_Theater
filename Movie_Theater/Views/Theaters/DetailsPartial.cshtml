@@ -1,0 +1,85 @@
+﻿@model Movie_Theater.Models.Theaters
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm mx-auto" style="max-width: 900px;">
+        <div class="card-body">
+            <h4 class="card-title text-center">詳細頁面</h4>
+            <hr />
+            <div class="row">
+                <!-- 左邊部分：顯示詳細信息 -->
+                <div class="col-6">
+                    <dl class="row">
+                        <dt class="col-sm-5 text-end fw-bold">
+                            <!-- 使用 `text-end` 使標籤文字靠右對齊 -->
+                            @Html.DisplayNameFor(model => model.TheaterName)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterName)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterPhone)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterPhone)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterEmail)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterEmail)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterLocation)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterLocation)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterDescription)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterDescription)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterStartTime)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterStartTime)
+                        </dd>
+
+                        <dt class="col-sm-5 text-end fw-bold">
+                            @Html.DisplayNameFor(model => model.TheaterEndTime)
+                        </dt>
+                        <dd class="col-sm-7">
+                            @Html.DisplayFor(model => model.TheaterEndTime)
+                        </dd>
+                    </dl>
+                </div>
+
+                <!-- 右邊部分：顯示圖片 -->
+                <div class="col-6 text-center">
+                    <dt class="fw-bold">
+                        @Html.DisplayNameFor(model => model.TheaterImage)
+                    </dt>
+                    <dd class="my-3">
+                        <partial name="_ShowImagePartial" />
+                    </dd>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center my-4">
+        <a asp-action="Edit" asp-route-id="@Model?.TheaterId" class="btn btn-primary mx-2">進行修改</a>
+        <a asp-action="Index" class="btn btn-secondary mx-2">返回列表</a>
+    </div>
+</div>

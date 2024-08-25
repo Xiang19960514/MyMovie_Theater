@@ -1,0 +1,38 @@
+[
+  {
+    "outputFileName": "wwwroot/js/site - 複製.min.js",
+    "inputFiles": [
+      "wwwroot/js/site - 複製.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/site - image.min.js",
+    "inputFiles": [
+      "wwwroot/js/site - image.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/images.min.js",
+    "inputFiles": [
+      "wwwroot/js/images.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/images.min.js",
+    "inputFiles": [
+      "wwwroot/images.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/image.min.js",
+    "inputFiles": [
+      "wwwroot/js/image.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/img.min.js",
+    "inputFiles": [
+      "wwwroot/js/img.js"
+    ]
+  }
+]

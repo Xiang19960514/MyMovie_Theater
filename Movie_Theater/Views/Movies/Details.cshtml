@@ -1,0 +1,271 @@
+﻿@model MoviesViewModel
+
+@{
+    ViewData["Title"] = "Movie Details";
+}
+
+@section Styles
+{
+    <style>
+        .img-thumbnail {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            height: auto;
+            min-height: 200px; /* 調整預告片的最小高度 */
+        }
+
+        .info-label {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .info-value {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background-color: #f9f9f9;
+            padding: 15px; /* 縮小卡片的內邊距 */
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 統一標題樣式 */
+        .card-title {
+            font-size: 24px; /* 增大標題字體 */
+            font-weight: bold; /* 加粗字體 */
+            margin-bottom: 15px; /* 縮小標題下方的間距 */
+            color: #2c3e50; /* 深色調的字體顏色，增加可讀性 */
+            text-transform: uppercase; /* 將標題轉換為大寫 */
+            letter-spacing: 1px; /* 增加字母間距，提升視覺效果 */
+            text-align: center; /* 讓標題居中 */
+            border-bottom: 2px solid grey; /* 在標題下方添加灰色下劃線 */
+            padding-bottom: 10px; /* 增加下方的內邊距 */
+        }
+        /* 第一個按鈕 */
+        .btn-lg {
+            display: inline-block;
+            border-radius: 5px;
+            padding: 10px 30px;
+            font-size: 1.2em;
+            background: linear-gradient(45deg, #3a5f72, #4ca1af); /* 漸變背景：從淺灰藍到海藍 */
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: center;
+            text-decoration: none;
+            border: none;
+            transition: transform 0.2s ease; /* 增加按鈕輕微的變形效果 */
+        }
+
+            .btn-lg:hover {
+                transform: translateY(-3px); /* 懸停時讓按鈕稍微浮起 */
+            }
+
+
+        .details-section {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px; /* 縮小下方的間距 */
+        }
+
+            .details-section dt,
+            .details-section dd {
+                margin-bottom: 8px; /* 縮小項目之間的間距 */
+            }
+
+            .details-section dt {
+                font-weight: bold;
+                flex-basis: 30%;
+                color: #555;
+            }
+
+            .details-section dd {
+                flex-basis: 70%;
+                margin-left: 0;
+            }
+
+        .horizontal-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center; /* 中心對齊內容 */
+            gap: 10px; /* 設置每個類型之間的間距 */
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+            .horizontal-list dd {
+                margin: 0;
+                padding: 5px 10px;
+                background-color: #e9ecef;
+                border-radius: 5px;
+            }
+
+        .media-content {
+            margin-bottom: 15px; /* 縮小下方的間距 */
+        }
+
+            .media-content iframe,
+            .media-content .img-thumbnail {
+                border-radius: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+
+        /* 特別為主演設計的顏色樣式 */
+        .main-actor {
+            color: darksalmon; /* 主演字體顏色 */
+            font-weight: bold; /* 主演字體加粗 */
+        }
+
+        /* 為演員添加按鈕樣式並保持垂直排列 */
+        .actor-button {
+            display: block;
+            padding: 5px 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center; /* 文字置中 */
+            width: fit-content; /* 自動調整寬度以適應內容 */
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+}
+
+<div class="container">
+    <div class="row">
+        <!-- 左上角：電影海報 -->
+        <div class="col-md-6">
+            <div class="card">
+                <h4 class="card-title">電影海報</h4>
+                <div class="media-content text-center" style="margin-top: -20px;">
+                    <partial name="_MoviesShowImagePartialDetails" />
+                </div>
+            </div>
+
+            <!-- 左下角：詳細資料 -->
+            <div class="card mt-4">
+                <h4 class="card-title">詳細資料</h4>
+
+                <dl class="details-section">
+                    <dt>@Html.DisplayNameFor(model => model.MovieName)</dt>
+                    <dd>@Html.DisplayFor(model => model.MovieName)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.MovieEnglishName)</dt>
+                    <dd>@Html.DisplayFor(model => model.MovieEnglishName)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.ReleaseDate)</dt>
+                    <dd>@Html.DisplayFor(model => model.ReleaseDate)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.Runtime)</dt>
+                    <dd>@Html.DisplayFor(model => model.Runtime)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.Level)</dt>
+                    <dd>
+                        @{
+                            string movieLevel = Model.Level switch
+                            {
+                                0 => "普遍級",
+                                6 => "保護級",
+                                12 => "輔導級(12)",
+                                15 => "輔導級(15)",
+                                18 => "限制級",
+                                _ => "未設定級數",
+                            };
+                            @movieLevel
+                        }
+                    </dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.Language)</dt>
+                    <dd>@Html.DisplayFor(model => model.Language)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.DirectorName)</dt>
+                    <dd>@Html.DisplayFor(model => model.DirectorName)</dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.MovieState)</dt>
+                    <dd>
+                        @{
+                            string moviestates = Model.MovieState switch
+                            {
+                                0 => "即將上映",
+                                1 => "上映中",
+                                2 => "已下檔",
+                                _ => "未設定狀態",
+                            };
+                            @moviestates
+                        }
+                    </dd>
+
+                    <dt>@Html.DisplayNameFor(model => model.MovieDescription)</dt>
+                    <dd>@Html.DisplayFor(model => model.MovieDescription)</dd>
+                </dl>
+            </div>
+        </div>
+
+        <!-- 右上角：預告片 -->
+        <div class="col-md-6">
+            <div class="card">
+                <h4 class="card-title">預告片</h4>
+
+                <div class="ratio ratio-16x9">
+                    <iframe src="@Model.Movievideo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                </div>
+            </div>
+
+            <!-- 右下角：類型 -->
+            <div class="card mt-1">
+                <h4 class="card-title">類型</h4>
+
+                <dl class="horizontal-list">
+                    @foreach (var classname in Model.ClassName)
+                    {
+                        <dd class="info-value">
+                            @Html.DisplayFor(model => classname.ClassName)
+                        </dd>
+                    }
+                </dl>
+            </div>
+            <!-- 右下角：演員 -->
+            <div class="card mt-1">
+                <h4 class="card-title">演員</h4>
+
+                <dl class="text-center">
+                    @foreach (var actor in Model.ActorName)
+                    {
+                        <dd class="info-value actor-button @((actor.MainLevel == 0) ? "main-actor" : "")">
+                            @Html.DisplayFor(model => actor.ActorName)
+                            @{
+                                string role = actor.MainLevel switch
+                                {
+                                    0 => "(主演)",
+                                    1 => "(配角)",
+                                    2 => "(客串)",
+                                    _ => ""
+                                };
+                                @role
+                            }
+                        </dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <!-- 動作按鈕 -->
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-lg mx-2">返回列表</a>
+        <a asp-action="Edit" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">編輯</a>
+        <a asp-controller="Movie_Actor" asp-action="Index" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">演員</a>
+        <a asp-controller="Movie_Class" asp-action="Index" asp-route-id="@Model?.MovieId" class="btn btn-lg mx-2">類型</a>
+    </div>
+
+
+</div>

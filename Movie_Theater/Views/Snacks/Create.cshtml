@@ -1,0 +1,47 @@
+﻿@model Movie_Theater.Models.Snacks
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1 class="text-center my-4">Create Snack</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #fff7e6;">
+        <div class="card-body">
+            <h4 class="card-title">Snack Details</h4>
+            <hr />
+            <form asp-action="Create" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <div class="form-group mb-3">
+                    <label asp-for="SnackName" class="form-label"></label>
+                    <input asp-for="SnackName" class="form-control" />
+                    <span asp-validation-for="SnackName" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="SnackImages" class="form-label"></label>
+                    <img src="~/images/Noimage.jpg" class="img-thumbnail mb-2" style="width:320px;height:240px" />
+                    <input asp-for="SnackImages" class="form-control" type="file"/>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Price" class="form-label"></label>
+                    <input asp-for="Price" class="form-control" />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Create" class="btn btn-lg" style="background-color: #ff7f50; color: white; border-radius: 50px; padding: 10px 30px; font-size: 1.2em;" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="~/js/site - image.js"></script>
+}

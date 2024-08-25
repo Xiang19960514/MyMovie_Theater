@@ -1,0 +1,14 @@
+﻿@model IEnumerable<Shows_ViewModel>
+
+@foreach (var item in Model)
+{
+    <div class="col-md-12 mt-2 position-relative schedule-item" data-date="@item.ShowDateTime.ToString("yyyy-MM-dd")" data-time="@item.ShowDateTime.ToString("HH:mm")" data-end-time="@item.ShowDateTime.AddMinutes(item.Runtime).ToString("HH:mm")">
+        <div class="card card-hover">
+            <div class="card-body">
+                <h5 class="card-title">@($"{item.MovieName} ({item.Runtime}分鐘)")</h5>
+                <p class="card-text">@item.ShowDateTime.ToString("yyyy-MM-dd HH:mm")</p>
+                <button type="button" class="btn btn-danger btn-sm remove-schedule" onclick="removeShow(@item.ShowId)">刪除</button>
+            </div>
+        </div>
+    </div>
+}

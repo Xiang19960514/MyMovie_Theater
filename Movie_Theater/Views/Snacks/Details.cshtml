@@ -1,0 +1,40 @@
+﻿@model Movie_Theater.Models.Snacks
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 class="text-center my-4">Snack Details</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #fff7e6;">
+        <div class="card-body">
+            <h4 class="card-title">Snack Information</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3" style="color: #555;">
+                    @Html.DisplayNameFor(model => model.SnackName)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.SnackName)
+                </dd>
+                <dt class="col-sm-3" style="color: #555;">
+                    <partial name="_SnacksShowImagePartial" />
+                </dt>
+                <dd class="col-sm-9">
+                    
+                </dd>
+                <dt class="col-sm-3" style="color: #555;">
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Price)
+                </dd>
+            </dl>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Edit" asp-route-id="@Model?.SnackId" class="btn btn-primary btn-lg" style="border-radius: 50px; padding: 10px 30px; font-size: 1.2em;">Edit</a> |
+        <a asp-action="Index" class="btn btn-secondary btn-lg" style="border-radius: 50px; padding: 10px 30px; font-size: 1.2em;">Back to List</a>
+    </div>
+</div>

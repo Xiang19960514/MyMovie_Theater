@@ -1,0 +1,132 @@
+﻿@model Movie_Theater.Models.Theaters
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section Styles
+{
+    <!-- sweetalert2樣式 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+    <style>
+        #ShowImg{
+            width: 800px;
+            height: 500px;
+        }
+    </style>
+}
+
+<h2 class="form-header text-center">修改戲院</h2>
+<hr />
+<form asp-action="Edit" enctype="multipart/form-data" class="needs-validation" novalidate>
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+    <input type="hidden" asp-for="TheaterId" />
+    <div class="row">
+        <!-- 左邊部分：輸入字段 -->
+        <div class="col-4">
+            <div class="mb-3">
+                <label asp-for="TheaterName" class="form-label">戲院名稱</label>
+                <input asp-for="TheaterName" class="form-control" placeholder="輸入戲院名稱" required />
+                <span asp-validation-for="TheaterName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterPhone" class="form-label">聯絡電話</label>
+                <input asp-for="TheaterPhone" class="form-control" placeholder="輸入聯絡電話" required />
+                <span asp-validation-for="TheaterPhone" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterEmail" class="form-label">電子郵件</label>
+                <input asp-for="TheaterEmail" class="form-control" placeholder="輸入電子郵件" required />
+                <span asp-validation-for="TheaterEmail" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterLocation" class="form-label">地點</label>
+                <input asp-for="TheaterLocation" class="form-control" placeholder="輸入地點" required />
+                <span asp-validation-for="TheaterLocation" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterDescription" class="form-label">描述</label>
+                <textarea asp-for="TheaterDescription" class="form-control" rows="4" placeholder="輸入描述"></textarea>
+                <span asp-validation-for="TheaterDescription" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterStartTime" class="form-label">開放時間</label>
+                <input asp-for="TheaterStartTime" type="time" class="form-control" required />
+                <span asp-validation-for="TheaterStartTime" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TheaterEndTime" class="form-label">結束時間</label>
+                <input asp-for="TheaterEndTime" type="time" class="form-control" required />
+                <span asp-validation-for="TheaterEndTime" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- 右邊部分：圖片上傳 -->
+        <div class="col-8 text-center">
+            <div>
+                <label asp-for="TheaterImage" class="form-label fs-3">上傳圖片</label>
+            </div>
+            <div class="mb-3">
+                <partial name="_ShowImagePartial" />
+                <input asp-for="TheaterImage" type="file" accept="image/*" class="form-control my-3" />
+            </div>
+        </div>
+    </div>
+
+    <!-- 提交按鈕 -->
+    <div class="text-center my-4">
+        <button type="submit" class="btn btn-primary btn-submit" onclick="return EditConfirm(this)">修改</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">返回列表</a>
+    </div>
+</form>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <!-- sweetalert2套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+	<script src="~/js/edit_alert.js"></script>
+    <script>
+        
+        $(document).ready(function () {
+            let imageTemp;
+            $('#TheaterImage').on("change", function () {
+                // 等待0.1秒
+                setTimeout(function () {
+                    console.log($('#TheaterImage').val());
+                    // 判斷是否有圖片
+                    if ($('#TheaterImage').val() == "") {
+                        // 更換成沒照片的圖
+                        $('#TheaterImage').prev().attr("src", "/images/No_Image.jpg");
+                    }
+                }, 100);
+                // 允許的副檔名
+                var allowType = "image.*";
+                // 上傳的第一個檔案
+                var file = this.files[0];
+                if (file != undefined) {
+                    // 抓取檔案的型態是否為allowType的格式
+                    if (file.type.match(allowType)) {
+                        // 讀取圖片
+                        var reader = new FileReader();
+                        // 檔案讀取完成的事件
+                        reader.onload = function (e) {
+                            // 選到#TheaterImage的上一個元素修改src屬性
+                            $('#TheaterImage').prev().attr("src", e.target.result);
+                            // 選到#TheaterImage的上一個元素修改title屬性
+                            $('#TheaterImage').prev().attr("title", file.name);
+                            imageTemp = e.target.result;
+                        }
+                        // 用圖片的URL讀取圖片
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert("不支援的檔案上傳類型");
+                        // 清空內容
+                        $('#TheaterImage').val('');
+                    }
+                }
+                
+            });
+        });
+    </script>
+}

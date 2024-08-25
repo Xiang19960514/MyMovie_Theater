@@ -1,0 +1,10 @@
+﻿@model Theaters
+
+@if (Model.TheaterImage == null)
+{
+    <img src="~/images/No_Image.jpg" title="尚無圖案" class="my-3 w-100" id="ShowImg" />
+}
+else
+{
+    <img src="~/images/@Html.DisplayFor(model => model.TheaterImage)" title="@Html.DisplayFor(model => model.TheaterName)" class="my-3 w-100" id="ShowImg" />
+}

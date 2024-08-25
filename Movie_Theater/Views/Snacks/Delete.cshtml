@@ -1,0 +1,42 @@
+﻿@model Movie_Theater.Models.Snacks
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1 class="text-center my-4">Delete Snack</h1>
+
+<h3 class="text-center text-danger">Are you sure you want to delete this?</h3>
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #faf0e6;">
+        <div class="card-body">
+            <h4 class="card-title">Snack Details</h4>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.SnackName)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.SnackName)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.Price)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.Price)
+                </dd>
+                <dt class="col-sm-3">
+                    @Html.DisplayNameFor(model => model.SnackImages)
+                </dt>
+                <dd class="col-sm-9">
+                    @Html.DisplayFor(model => model.SnackImages)
+                </dd>
+            </dl>
+            <form asp-action="Delete" class="text-center">
+                <input type="hidden" asp-for="SnackId" />
+                <input type="submit" value="Delete" class="btn btn-lg btn-danger" style="padding: 10px 30px; font-size: 1.2em;" /> |
+                <a asp-action="Index" class="btn btn-secondary btn-lg" style="padding: 10px 30px; font-size: 1.2em;">Back to List</a>
+            </form>
+        </div>
+    </div>
+</div>

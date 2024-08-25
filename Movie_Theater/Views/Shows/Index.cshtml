@@ -1,0 +1,368 @@
+﻿@model Movie_Theater.Models.Shows
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+@section Styles
+{
+    <!-- sweetalert2樣式 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.min.css" rel="stylesheet" />
+	<link href="~/css/jquery-clockpicker.min.css" rel="stylesheet" />
+    <style>
+        /* 自定義的 CSS */
+        #schedule-list {
+            overflow-y:auto
+        }
+        /* 卡片懸停效果 */
+        .card-hover:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            /* 滑鼠懸停時顯示陰影效果 */
+            transform: scale(1.02);
+            /* 滑鼠懸停時放大 1.02 倍 */
+            transition: 0.3s;
+            /* 懸停效果的過渡時間 */
+        }
+
+        .card-hover {
+            transition: 0.3s;
+            /* 卡片懸停效果的過渡時間 */
+        }
+
+        .remove-schedule {
+            position: absolute;
+            /* 絕對定位 */
+            bottom: 10px;
+            /* 底部距離 10 像素 */
+            right: 10px;
+            /* 右側距離 10 像素 */
+        }
+
+        .container-custom {
+            max-width: 1200px;
+            /* 容器最大寬度為 1200 像素 */
+            margin: 0 auto;
+            /* 水平置中 */
+        }
+    </style>
+}
+<a asp-controller="Shows" asp-action="Index" class="btn btn-primary">重新選擇影城</a>
+
+<!-- 主要內容 -->
+<div class="container mt-5 container-custom">
+    <div class="row">
+        <!-- 左側欄位 -->
+        <div class="col-md-6">
+            <h3>新增電影場次</h3>
+            <!-- 場次表單 -->
+            <form id="schedule-form" class="needs-validation" novalidate>
+                <div class="mb-3">
+                    <label asp-for="Auditorium_Id" class="form-label">影廳</label>
+                    <!-- 影廳選擇下拉式選單 -->
+                    @* <select class="form-select" id="auditorium"> *@
+                    <select asp-for="Auditorium_Id" class="form-select" required>
+                    </select>
+                    <div class="invalid-feedback">
+                        影廳為必選欄位
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="date" class="form-label">日期</label>
+                    <!-- 日期選擇欄位 -->
+                    <input type="date" class="form-control" id="date" required>
+                    <div class="invalid-feedback">
+                        日期為必填欄位
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="movie" class="form-label">電影</label>
+                    <!-- 電影選擇下拉式選單，並附帶電影時長資料 -->
+                    @* <select class="form-select" id="movie"> *@
+                    <select asp-for="Movie_Id" class="form-select" required>
+                        <option value="" selected>選擇電影</option>
+                        @foreach (var movie in ViewBag.Movies){
+                            <option value="@movie.MovieId" data-duration="@movie.Runtime">@movie.MovieName</option>
+                        }
+                    </select>
+                    <div class="invalid-feedback">
+                        電影為必選欄位
+                    </div>
+                </div>
+                <div class="mb-3 clockpicker">
+                    <label for="time" class="form-label">時間</label>
+                    <!-- 時間選擇欄位 -->
+                    <input class="form-control" id="time" required>
+                    <div class="invalid-feedback">
+                        時間為必填欄位
+                    </div>
+                </div>
+                <!-- 新增場次按鈕 -->
+                <button type="submit" class="btn btn-primary" id="add-schedule">加入</button>
+            </form>
+        </div>
+        <!-- 右側清單 -->
+        <div class="col-md-6">
+            <h3>所有場次清單</h3>
+            <div class="mb-3">
+                <label for="schedule-date" class="form-label">選擇日期</label>
+                <!-- 日期篩選下拉式選單 -->
+                <select class="form-select" id="schedule-date">
+                    <option value="" selected>顯示所有日期</option>
+                    <!-- 動態新增日期選項 -->
+                </select>
+            </div>
+            <div class="card" style="height:420px">
+                <div class="card-header">
+                    已加入的場次
+                </div>
+                <div class="card-body" id="schedule-list">
+                    <!-- 動態新增場次清單 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <!-- sweetalert2套件 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.1/dist/sweetalert2.all.min.js"></script>
+	<script src="~/js/common.min.js"></script>
+	<script src="~/js/jquery-clockpicker.min.js"></script>
+    <script src="~/js/form_validation.js"></script>
+	<script src="~/js/data_change_result.js"></script>
+    <script>
+        // 先從後端獲取影城選項數據
+        $.getJSON('/Shows/GetTheaters', function (theaters) {
+            // 將選項數據生成HTML
+            let theaterOptions = theaters.map(theater => {
+                return `<option value="${theater.value}">${theater.text}</option>`;
+            }).join('');
+
+            // 使用 SweetAlert2 顯示彈出框
+            Swal.fire({
+                title: '請選擇影城',
+                html: `
+                                <select id="swal-select-theater" class="swal2-input">
+                                    <option value="" selected>選擇影城</option>
+                                    ${theaterOptions}
+                                </select>
+                            `,
+                showCancelButton: true,
+                confirmButtonText: '確認',
+                cancelButtonText: '取消',
+                preConfirm: () => {
+                    const selectedTheater = document.getElementById('swal-select-theater').value;
+                    if (!selectedTheater) {
+                        Swal.showValidationMessage('請選擇一個影城');
+                    }
+                    return selectedTheater;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // 使用 Ajax 將選擇的影城 ID 傳遞給後端
+                    $.ajax({
+                        url: `/Shows/GetAuditoriumsByTheater/${result.value}`,
+                        type: 'GET',
+                        //data: { theaterId: result.value },
+                    }).done(response => {
+                        // 將影廳選項插入到影廳下拉選單
+                        let auditoriumSelect = $('#Auditorium_Id');
+                        auditoriumSelect.empty(); // 清空當前選項
+                        auditoriumSelect.append('<option value="" selected>選擇影廳</option>'); // 添加預設選項
+                        response.forEach(auditorium => {
+                            console.log(auditorium);
+                            auditoriumSelect.append(`<option value="${auditorium.value}">${auditorium.text}</option>`);
+                        });
+                        console.log(response); // 可以在這裡處理返回的影廳數據
+
+
+                    }).fail(error => {
+                        Swal.fire({
+                            title: '錯誤',
+                            text: '無法獲取影廳資料',
+                            icon: 'error'
+                        });
+                        console.error(error);
+                    });
+
+                } else if (result.dismiss === Swal.DismissReason.cancel) {
+                    window.location.href = '@Url.Action("Index", "Home")';
+                }
+            });
+        });
+        $(document).ready(function () {
+            formValidation();
+            
+            // 時間選取器 Clock pickers
+            $('.clockpicker').clockpicker({
+                placement: 'top',
+                donetext: '完成',
+            }).find('input').change(function () {
+                console.log(this.value);
+            });
+
+            $('#Auditorium_Id').on("change", function () {
+                updateSelectDate(0);
+                showsAllList();
+            });
+            $('#schedule-date').on("change", function () {
+                showsListByDate();
+            });
+            console.log(@ViewBag.Date);
+            // 儲存已新增的日期，用 Set 來確保唯一性
+            const addedDates = new Set();
+            // 點擊新增場次按鈕
+            $('#schedule-form').on('submit', event => {
+                // 取消表單送出
+                event.preventDefault();
+                const form = document.querySelector('.needs-validation');
+                if (form.checkValidity()) {
+                    console.log(@ViewBag.Date);
+                    // 取得下拉選單影廳值
+                    let auditorium_Id = $('#Auditorium_Id').val();
+                    // 取得表單日期值
+                    let date = $('#date').val();
+                    // 取得下拉選單電影值
+                    let movie_Id = $('#Movie_Id').val();
+                    // 取得下拉選單電影片長值
+                    let duration = $('#Movie_Id option:selected').data('duration');
+                    // 取得表單時間值
+                    let time = $('#time').val();
+
+                    console.log(`${auditorium_Id},${date},${movie_Id},${duration},${time}`);
+                    var newShow = {
+                        "Auditorium_Id": auditorium_Id,
+                        "Movie_Id": movie_Id,
+                        "ShowDateTime": `${date}T${time}`,
+                    };
+                    console.log(JSON.stringify(newShow));
+                    $.ajax({
+                        type: "POST",
+                        url: "/Shows/PostShows",
+                        contentType: "application/json",
+                        data: JSON.stringify(newShow)
+                    }).done(result => {
+                        //alert(result);
+                        if (result == true) {
+                            Swal.fire({
+                                title: '加入成功',
+                                icon: 'success',
+                                timer: 1500
+                            });
+                            $('#schedule-form').removeClass('was-validated');
+                            // 取得目前選擇的日期值
+                            updateSelectDate(1);  // 刷新日期選單
+                            showsListByDate(); // 刷新所有場次
+                        } else {
+                            Swal.fire({
+                                title: '加入失敗',
+                                icon: 'error',
+                                timer: 1500
+                            });
+                        }
+
+                    }).fail(err => {
+                        //alert('呼叫失敗');
+                        Swal.fire({
+                            title: '加入失敗',
+                            icon: 'error',
+                            timer: 1500
+                        });
+                    });
+                }
+                
+            });
+        });
+
+        function updateSelectDate(check){
+            // 取得下拉選單影廳值
+            let auditorium_Id = $('#Auditorium_Id').val();
+            // 取得目前選擇的日期值
+            let selectedDate = $('#schedule-date').val();
+            $.ajax({
+                type: "GET",
+                url: `/Shows/GetShowsDate?auditoriumId=${auditorium_Id}`,
+            }).done(data => {
+                console.log(data);
+                // 使用 Set 來收集唯一的日期
+                let uniqueDates = new Set();
+                data.forEach(shows => {
+                    let dateTime = shows.showDateTime + "";
+                    let date = dateTime.split('T')[0];
+                    uniqueDates.add(date);
+                });
+                // 將唯一的日期生成選項
+                let dateOptions = Array.from(uniqueDates).map(date => {
+                    return `<option value="${date}">${date}</option>`;
+                }).join('');
+
+                // 更新下拉選單的選項
+                $('#schedule-date').html('<option value="" selected>顯示所有日期</option>' + dateOptions);
+                if (check == 1) {
+                    $('#schedule-date').val(selectedDate);
+                }
+                
+            }).fail(err => {
+                alert('呼叫失敗');
+            });
+        }
+
+        function showsAllList() {
+            // 取得下拉選單影廳值
+            let auditorium_Id = $('#Auditorium_Id').val();
+
+            $.ajax({
+                type: "GET",
+                url: `@Url.Action("ShowsAllList", "Shows")/${auditorium_Id}`
+            }).done(data => {
+                //console.log(data);
+                $('#schedule-list').html(data);
+            }).fail(err => {
+                alert('呼叫失敗');
+            });
+        }
+
+        function showsListByDate(){
+            let auditorium_Id = $('#Auditorium_Id').val();
+            let date = $('#schedule-date').val();
+
+            var queryShows = {
+                Auditorium_Id: auditorium_Id,
+                ShowDate: date
+            }
+
+            $.ajax({
+                type: "POST",
+                url: `@Url.Action("ShowsListByDate", "Shows")`,
+                contentType: "application/json",
+                data: JSON.stringify(queryShows)
+            }).done(data => {
+                //console.log(data);
+                $('#schedule-list').html(data);
+            }).fail(err => {
+                alert('呼叫失敗');
+            });
+        }
+
+        function removeShow(id) {
+            $.ajax({
+                type: "GET",
+                url: `@Url.Action("Delete", "Shows")/${id}`
+            }).done(result => {
+                //alert(result);
+                if (result == "刪除成功") {
+                    DataChangeResult("D_1")
+                }
+                else{
+                    DataChangeResult("D_0")
+                }
+                updateSelectDate(1);  // 刷新日期選單
+                showsListByDate(); // 刷新所有場次
+            }).fail(err => {
+                alert('呼叫失敗');
+            });
+        }
+    </script>
+   
+}

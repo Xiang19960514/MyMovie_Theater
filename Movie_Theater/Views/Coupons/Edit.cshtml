@@ -1,0 +1,80 @@
+﻿@model Movie_Theater.Models.Coupons
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+@section Styles
+{
+    <style>
+        textarea {
+            height: 150px;
+            resize: none;
+        }
+    </style>
+}
+
+<h1 class="text-center my-4">編輯優惠券</h1>
+
+<div class="container">
+    <div class="card shadow-sm" style="background-color: #fafad2;">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                <input type="hidden" asp-for="CouponID" />
+                <div class="form-group mb-3">
+                    <label asp-for="CouponCode" class="form-label"></label>
+                    <input asp-for="CouponCode" class="form-control" />
+                    <span asp-validation-for="CouponCode" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="DiscountType" class="form-label"></label>
+                    <input asp-for="DiscountType" class="form-control" />
+                    <span asp-validation-for="DiscountType" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="DiscountValue" class="form-label"></label>
+                    <input asp-for="DiscountValue" class="form-control" />
+                    <span asp-validation-for="DiscountValue" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="StartDate" class="form-label"></label>
+                    <input asp-for="StartDate" class="form-control" type="date" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="ExpiryDate" class="form-label"></label>
+                    <input asp-for="ExpiryDate" class="form-control" type="date" />
+                    <span asp-validation-for="ExpiryDate" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="MaxUsageCount" class="form-label"></label>
+                    <input asp-for="MaxUsageCount" class="form-control" />
+                    <span asp-validation-for="MaxUsageCount" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="CurrentUsageCount" class="form-label"></label>
+                    <input asp-for="CurrentUsageCount" class="form-control" />
+                    <span asp-validation-for="CurrentUsageCount" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Description" class="form-label"></label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <div class="form-group text-center">
+                    <input type="submit" value="Save" class="btn btn-lg" style="background-color: #8b0000; color: white; border-radius: 50px; padding: 10px 30px; font-size: 1.2em;" />
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center mt-4">
+        <a asp-action="Index" class="btn btn-primary">Back to List</a>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
